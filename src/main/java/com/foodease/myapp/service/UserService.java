@@ -9,7 +9,6 @@ import com.foodease.myapp.repository.RoleRepository;
 import com.foodease.myapp.repository.UserRepository;
 import com.foodease.myapp.service.dto.request.UserCreationRequest;
 import com.foodease.myapp.service.dto.response.UserResponse;
-import com.foodease.myapp.service.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.apache.coyote.BadRequestException;
@@ -17,7 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.beans.Encoder;
 import java.util.Set;
 
 import static lombok.AccessLevel.PRIVATE;
@@ -27,7 +25,6 @@ import static lombok.AccessLevel.PRIVATE;
 @FieldDefaults(level = PRIVATE, makeFinal = true)
 public class UserService {
 
-    UserMapper       mapper;
     UserRepository   userRepo;
     RoleRepository   roleRepo;
     CityRepository   cityRepo;
@@ -73,5 +70,71 @@ public class UserService {
                 .phone(saved.getProfile().getPhone())
                 .cityId(saved.getProfile().getCity().getId())
                 .build();
+    }
+
+    public UserResponse getLoginIdentity(Long userId) throws BadRequestException {
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new BadRequestException("User not found: " + userId));
+
+        return UserResponse.builder()
+                .id(user.getId())
+                .login(user.getLogin())
+                .email(user.getEmail())
+                .langKey(user.getLangKey())
+                .activated(user.getActivated())
+                .fullName(user.getProfile().getFullName())
+                .phone(user.getProfile().getPhone())
+                .cityId(user.getProfile().getCity().getId())
+                .latitude(user.getProfile().getLatitude())
+                .longitude(user.getProfile().getLongitude())
+                .imageUrl(user.getProfile().getImageUrl())
+                .build();
+    }
+
+    public UserResponse updateUser(Long userId, UserCreationRequest req) throws BadRequestException {
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new BadRequestException("User not found: " + userId));
+
+        if (req.getEmail() != null && !req.getEmail().equals(user.getEmail()) && userRepo.existsByEmail(req.getEmail())) {
+            throw new BadRequestException("Email already in use");
+        }
+
+        user.setLogin(req.getLogin());
+        if (req.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(req.getPassword()));
+        }
+        user.setLangKey(req.getLangKey());
+
+        City city = cityRepo.findById(req.getCityId())
+                .orElseThrow(() -> new BadRequestException("City not found: " + req.getCityId()));
+
+        UserProfile profile = user.getProfile();
+        profile.setFullName(req.getFullName());
+        profile.setPhone(req.getPhone());
+        profile.setReferralCode(req.getReferralCode());
+        profile.setLatitude(req.getLatitude());
+        profile.setLongitude(req.getLongitude());
+        profile.setCity(city);
+
+        User updated = userRepo.save(user);
+        return UserResponse.builder()
+                .id(updated.getId())
+                .login(updated.getLogin())
+                .email(updated.getEmail())
+                .langKey(updated.getLangKey())
+                .activated(updated.getActivated())
+                .fullName(updated.getProfile().getFullName())
+                .phone(updated.getProfile().getPhone())
+                .cityId(updated.getProfile().getCity().getId())
+                .latitude(updated.getProfile().getLatitude())
+                .longitude(updated.getProfile().getLongitude())
+                .imageUrl(updated.getProfile().getImageUrl())
+                .build();
+    }
+
+    public void deleteUser(Long userId) throws BadRequestException {
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new BadRequestException("User not found: " + userId));
+        userRepo.delete(user);
     }
 }

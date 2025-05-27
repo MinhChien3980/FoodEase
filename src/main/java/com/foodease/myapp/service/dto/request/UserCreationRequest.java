@@ -41,4 +41,6 @@ public class UserCreationRequest {
 
     private BigDecimal latitude;
     private BigDecimal longitude;
+
+    private String langKey;
 }
