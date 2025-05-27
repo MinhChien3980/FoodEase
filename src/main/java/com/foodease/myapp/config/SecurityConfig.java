@@ -33,7 +33,8 @@ public class SecurityConfig {
             "/v3/api-docs/**",    // any docs‐by‐group
             "/swagger-ui.html",
             "/swagger-ui/**",
-            "/webjars/**"
+            "/webjars/**",
+            "/auth/**",
     };
 
     private final CustomJwtDecoder customJwtDecoder;
