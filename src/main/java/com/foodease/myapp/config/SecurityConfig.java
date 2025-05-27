@@ -1,5 +1,7 @@
 package com.foodease.myapp.config;
 
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.context.annotation.Bean;
@@ -25,40 +27,26 @@ import java.util.List;
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
-@FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
 public class SecurityConfig {
-
-    // your custom JWT decoder (for everything except the docs)
-    CustomJwtDecoder customJwtDecoder;
-
-    // these are ALL the paths swagger-ui needs
     private static final String[] SWAGGER_WHITELIST = {
-            "/v3/api-docs",       // <-- MUST match exactly
-            "/v3/api-docs/**",    // swagger‐config & any groups
+            "/v3/api-docs",       // exact match
+            "/v3/api-docs/**",    // any docs‐by‐group
             "/swagger-ui.html",
             "/swagger-ui/**",
             "/webjars/**"
     };
 
+    private final CustomJwtDecoder customJwtDecoder;
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // 1) CORS
                 .cors(Customizer.withDefaults())
-                // 2) No CSRF in a pure REST API
-                .csrf(AbstractHttpConfigurer::disable)
-                // 3) Who can call what
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // allow CORS pre-flights everywhere
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                        // swagger → PUBLIC
                         .requestMatchers(SWAGGER_WHITELIST).permitAll()
-
-                        // everything else → JWT protected
                         .anyRequest().authenticated()
                 )
-                // 4) JWT resource server
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .authenticationEntryPoint(new JwtAuthenEntryPoint())
                         .jwt(jwt -> jwt
@@ -66,7 +54,6 @@ public class SecurityConfig {
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter())
                         )
                 );
-
         return http.build();
     }
 
@@ -109,5 +96,11 @@ public class SecurityConfig {
         var conv = new JwtAuthenticationConverter();
         conv.setJwtGrantedAuthoritiesConverter(granted);
         return conv;
+    }
+
+    @Bean
+    public OpenAPI defaultOpenAPI() {
+        return new OpenAPI()
+                .info(new Info().title("FoodEase API").version("v1"));
     }
 }

@@ -33,7 +33,11 @@ springdoc:
     enabled: true
     path : /swagger-ui.html
   api-docs:
+    enabled: true
     path : /v3/api-docs
+    groups:
+      enabled: true
+    version: openapi_3_0
 
 jwt:
   valid-duration: 100000 # in second
