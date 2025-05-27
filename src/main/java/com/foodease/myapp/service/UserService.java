@@ -9,6 +9,8 @@ import com.foodease.myapp.repository.RoleRepository;
 import com.foodease.myapp.repository.UserRepository;
 import com.foodease.myapp.service.dto.request.UserCreationRequest;
 import com.foodease.myapp.service.dto.response.UserResponse;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.apache.coyote.BadRequestException;
@@ -16,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.ParseException;
 import java.util.Set;
 
 import static lombok.AccessLevel.PRIVATE;
@@ -76,19 +79,7 @@ public class UserService {
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new BadRequestException("User not found: " + userId));
 
-        return UserResponse.builder()
-                .id(user.getId())
-                .login(user.getLogin())
-                .email(user.getEmail())
-                .langKey(user.getLangKey())
-                .activated(user.getActivated())
-                .fullName(user.getProfile().getFullName())
-                .phone(user.getProfile().getPhone())
-                .cityId(user.getProfile().getCity().getId())
-                .latitude(user.getProfile().getLatitude())
-                .longitude(user.getProfile().getLongitude())
-                .imageUrl(user.getProfile().getImageUrl())
-                .build();
+        return getUserResponse(user);
     }
 
     public UserResponse updateUser(Long userId, UserCreationRequest req) throws BadRequestException {
@@ -117,24 +108,52 @@ public class UserService {
         profile.setCity(city);
 
         User updated = userRepo.save(user);
-        return UserResponse.builder()
-                .id(updated.getId())
-                .login(updated.getLogin())
-                .email(updated.getEmail())
-                .langKey(updated.getLangKey())
-                .activated(updated.getActivated())
-                .fullName(updated.getProfile().getFullName())
-                .phone(updated.getProfile().getPhone())
-                .cityId(updated.getProfile().getCity().getId())
-                .latitude(updated.getProfile().getLatitude())
-                .longitude(updated.getProfile().getLongitude())
-                .imageUrl(updated.getProfile().getImageUrl())
-                .build();
+        return getUserResponse(updated);
     }
 
     public void deleteUser(Long userId) throws BadRequestException {
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new BadRequestException("User not found: " + userId));
         userRepo.delete(user);
+    }
+    public UserResponse getUserByToken(String token) throws BadRequestException {
+        String email = extractEmailFromToken(token);
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new BadRequestException("User not found for email: " + email));
+        return getUserResponse(user);
+    }
+
+    private String extractEmailFromToken(String token) throws BadRequestException {
+        try {
+            SignedJWT jwt = SignedJWT.parse(token);
+            JWTClaimsSet claims = jwt.getJWTClaimsSet();
+
+            String subject = claims.getSubject();
+            if (subject == null) {
+                throw new BadRequestException("JWT did not contain a subject");
+            }
+            return subject;
+
+        } catch (ParseException e) {
+            throw new BadRequestException("Failed to parse JWT token", e);
+        } catch (BadRequestException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private UserResponse getUserResponse(User user) {
+        return UserResponse.builder()
+                .id(user.getId())
+                .login(user.getLogin())
+                .email(user.getEmail())
+                .langKey(user.getLangKey())
+                .activated(user.getActivated())
+                .fullName(user.getProfile().getFullName())
+                .phone(user.getProfile().getPhone())
+                .cityId(user.getProfile().getCity().getId())
+                .latitude(user.getProfile().getLatitude())
+                .longitude(user.getProfile().getLongitude())
+                .imageUrl(user.getProfile().getImageUrl())
+                .build();
     }
 }

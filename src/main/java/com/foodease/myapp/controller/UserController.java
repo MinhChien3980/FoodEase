@@ -7,6 +7,7 @@ import com.foodease.myapp.service.dto.response.UserResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.experimental.FieldDefaults;
 import org.apache.coyote.BadRequestException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,6 +45,15 @@ public class UserController {
         return ApiResponse.< Void > builder()
                 .code(204)
                 .message("User deleted successfully")
+                .build();
+    }
+
+    @GetMapping("/profile")
+    public ApiResponse<UserResponse> getProfile(@RequestHeader(HttpHeaders.AUTHORIZATION + "Bearer") String token) throws BadRequestException {
+        UserResponse user = userService.getUserByToken(token);
+        return ApiResponse.<UserResponse>builder()
+                .code(200)
+                .data(user)
                 .build();
     }
 }
