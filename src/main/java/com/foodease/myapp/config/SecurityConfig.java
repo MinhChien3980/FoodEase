@@ -38,6 +38,7 @@ public class SecurityConfig {
     };
 
     private final CustomJwtDecoder customJwtDecoder;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -66,7 +67,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
         cfg.setAllowedOriginPatterns(List.of("*"));
-        cfg.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+        cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         cfg.setAllowedHeaders(List.of("*"));
         cfg.setAllowCredentials(true);
 
@@ -78,7 +79,7 @@ public class SecurityConfig {
     /**
      * Don’t put swagger paths through the security filter chain at all.
      * (This is purely optional since we already .permitAll() above,
-     *  but it can save a tiny bit of overhead.)
+     * but it can save a tiny bit of overhead.)
      */
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
@@ -97,11 +98,5 @@ public class SecurityConfig {
         var conv = new JwtAuthenticationConverter();
         conv.setJwtGrantedAuthoritiesConverter(granted);
         return conv;
-    }
-
-    @Bean
-    public OpenAPI defaultOpenAPI() {
-        return new OpenAPI()
-                .info(new Info().title("FoodEase API").version("v1"));
     }
 }
