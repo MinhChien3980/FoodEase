@@ -1,5 +1,6 @@
 package com.foodease.myapp.service;
 
+import com.foodease.myapp.constant.PredefinedRole;
 import com.foodease.myapp.domain.Role;
 import com.foodease.myapp.domain.User;
 import com.foodease.myapp.repository.InvalidatedTokenRepository;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -104,5 +106,27 @@ public class AuthService {
             throw new JwtException("Token đã bị thu hồi");
         }
         return jwt;
+    }
+
+//    register
+    public AuthResponse register(AuthRequest req) {
+        if (userRepository.existsByEmail(req.getEmail())) {
+            throw new RuntimeException("Email đã được sử dụng");
+        }
+
+        User user = new User();
+        user.setEmail(req.getEmail());
+        user.setPassword(passwordEncoder.encode(req.getPassword()));
+        user.setRoles(Set.of(
+                new Role(null, PredefinedRole.USER_ROLE, "User role", null)
+        ));
+
+        userRepository.save(user);
+
+        String token = generateJwt(user, accessTokenValidity);
+        return AuthResponse.builder()
+                .token(token)
+                .authenticated(true)
+                .build();
     }
 }

@@ -37,6 +37,13 @@ public class AuthController {
                 .data(re)
                 .build();
     }
+    @PostMapping("/register")
+    ApiResponse<AuthResponse> register(@RequestBody AuthRequest authRequest) {
+        AuthResponse re = authService.register(authRequest);
+        return ApiResponse.<AuthResponse>builder().code(201)
+                .data(re)
+                .build();
+    }
 //    @PostMapping("/refresh")
 //    ApiResponse<AuthResponse> authenticate(@RequestBody RefreshRequest request)
 //            throws ParseException, JOSEException {
