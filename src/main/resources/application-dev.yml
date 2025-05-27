@@ -36,12 +36,11 @@ springdoc:
     path : /v3/api-docs
 
 jwt:
-  access-token-expiry: 3600s
-  refresh-token-expiry: 604800s
+  valid-duration: 100000 # in second
+  refreshable-duration: 100000 # in seconds
 
 api:
-  key:
-  secret:
+  secret: 3d449436ff8b2668fde0409c7d01b1ad0eca19e7d39f7b8c59cbe979668795a1
 
 logging:
   level:

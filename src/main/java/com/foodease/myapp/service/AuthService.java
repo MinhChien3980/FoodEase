@@ -1,132 +1,144 @@
 package com.foodease.myapp.service;
 
-import com.foodease.myapp.constant.PredefinedRole;
-import com.foodease.myapp.domain.Role;
 import com.foodease.myapp.domain.User;
+import com.foodease.myapp.exception.AppException;
+import com.foodease.myapp.exception.ErrorCode;
 import com.foodease.myapp.repository.InvalidatedTokenRepository;
 import com.foodease.myapp.repository.UserRepository;
 import com.foodease.myapp.service.dto.request.AuthRequest;
 import com.foodease.myapp.service.dto.request.IntrospectRequest;
 import com.foodease.myapp.service.dto.response.AuthResponse;
 import com.foodease.myapp.service.dto.response.IntrospectResponse;
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.crypto.MACVerifier;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
-import java.time.Duration;
+import java.text.ParseException;
 import java.time.Instant;
-import java.util.Set;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.StringJoiner;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
+@FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 public class AuthService {
+    UserRepository userRepository;
+    InvalidatedTokenRepository invalidatedTokenRepository;
 
-    private final UserRepository               userRepository;
-    private final InvalidatedTokenRepository   invalidatedTokenRepository;
-    private final PasswordEncoder              passwordEncoder;
-    private final JwtEncoder                   jwtEncoder;
-    private final JwtDecoder                   jwtDecoder;
-    private final Duration                     accessTokenValidity;
-    private final Duration                     refreshTokenValidity;
+    @NonFinal
+    @Value("${api.secret}")
+    protected String SIGNER_KEY;
 
-    public AuthService(
-            UserRepository userRepository,
-            InvalidatedTokenRepository invalidatedTokenRepository,
-            PasswordEncoder passwordEncoder,
-            JwtEncoder jwtEncoder,
-            JwtDecoder jwtDecoder,
-            @Value("${jwt.access-token-expiry}")  Duration accessTokenValidity,
-            @Value("${jwt.refresh-token-expiry}") Duration refreshTokenValidity
-    ) {
-        this.userRepository             = userRepository;
-        this.invalidatedTokenRepository = invalidatedTokenRepository;
-        this.passwordEncoder            = passwordEncoder;
-        this.jwtEncoder                 = jwtEncoder;
-        this.jwtDecoder                 = jwtDecoder;
-        this.accessTokenValidity        = accessTokenValidity;
-        this.refreshTokenValidity       = refreshTokenValidity;
-    }
+    @NonFinal
+    @Value("${jwt.valid-duration}")
+    protected long VALID_DURATION;
 
-    /** Đăng nhập, trả về access token */
-    public AuthResponse authenticate(AuthRequest req) {
-        User user = userRepository.findByEmail(req.getEmail())
-                .orElseThrow(() -> new RuntimeException("User không tồn tại"));
+    @NonFinal
+    @Value("${jwt.refreshable-duration}")
+    protected long REFRESHABLE_DURATION;
 
-        if (!passwordEncoder.matches(req.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Sai thông tin đăng nhập");
-        }
+    public IntrospectResponse introspect(IntrospectRequest request) throws JOSEException, ParseException {
+        var token = request.getToken();
+        boolean isValid = true;
 
-        String token = generateJwt(user, accessTokenValidity);
-        return AuthResponse.builder()
-                .token(token)
-                .authenticated(true)
-                .build();
-    }
-
-    /** Introspect: check xem token còn hợp lệ không */
-    public IntrospectResponse introspect(IntrospectRequest req) {
         try {
-            validateJwt(req.getToken(), accessTokenValidity);
-            return new IntrospectResponse(true);
-        } catch (JwtException ex) {
-            return new IntrospectResponse(false);
+            verifyToken(token, false);
+        } catch (AppException e) {
+            isValid = false;
         }
+
+        return IntrospectResponse.builder().valid(isValid).build();
     }
 
-    private String generateJwt(User user, Duration validity) {
-        Instant now = Instant.now();
-        JwtClaimsSet claims = JwtClaimsSet.builder()
-                .issuer("foodease-api")
-                .issuedAt(now)
-                .expiresAt(now.plus(validity))
-                .id(UUID.randomUUID().toString())
+    public AuthResponse authenticate(AuthRequest request) {
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+        var user = userRepository
+                .findByEmail(request.getEmail())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
+
+        if (!authenticated) throw new AppException(ErrorCode.UNAUTHENTICATED);
+
+        var token = generateToken(user);
+
+        return AuthResponse.builder().token(token).authenticated(true).build();
+    }
+
+    private String generateToken(User user) {
+        JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
+
+        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getEmail())
-                .claim("roles",
-                        user.getRoles().stream()
-                                .map(Role::getName)
-                                .collect(Collectors.toList()))
+                .issuer("api.com")
+                .issueTime(new Date())
+                .expirationTime(new Date(
+                        Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()))
+                .jwtID(UUID.randomUUID().toString())
+                .claim("scope", buildScope(user))
                 .build();
 
-        return jwtEncoder.encode(JwtEncoderParameters.from(claims))
-                .getTokenValue();
+        Payload payload = new Payload(jwtClaimsSet.toJSONObject());
+
+        JWSObject jwsObject = new JWSObject(header, payload);
+
+        try {
+            jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
+            return jwsObject.serialize();
+        } catch (JOSEException e) {
+            log.error("Cannot create token", e);
+            throw new RuntimeException(e);
+        }
     }
 
-    /** Validate token, kiểm tra expiry và blacklist */
-    private Jwt validateJwt(String token, Duration maxAge) {
-        Jwt jwt = jwtDecoder.decode(token);
+    private SignedJWT verifyToken(String token, boolean isRefresh) throws JOSEException, ParseException {
+        JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
 
-        if (jwt.getExpiresAt().isBefore(Instant.now())) {
-            throw new JwtException("Token đã hết hạn");
-        }
-        if (invalidatedTokenRepository.existsByToken(jwt.getId())) {
-            throw new JwtException("Token đã bị thu hồi");
-        }
-        return jwt;
+        SignedJWT signedJWT = SignedJWT.parse(token);
+
+        Date expiryTime = (isRefresh)
+                ? new Date(signedJWT
+                .getJWTClaimsSet()
+                .getIssueTime()
+                .toInstant()
+                .plus(REFRESHABLE_DURATION, ChronoUnit.SECONDS)
+                .toEpochMilli())
+                : signedJWT.getJWTClaimsSet().getExpirationTime();
+
+        var verified = signedJWT.verify(verifier);
+
+        if (!(verified && expiryTime.after(new Date()))) throw new AppException(ErrorCode.UNAUTHENTICATED);
+
+        if (invalidatedTokenRepository.existsByToken(signedJWT.getJWTClaimsSet().getJWTID()))
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+
+        return signedJWT;
     }
 
-//    register
-    public AuthResponse register(AuthRequest req) {
-        if (userRepository.existsByEmail(req.getEmail())) {
-            throw new RuntimeException("Email đã được sử dụng");
+    private String buildScope(User user) {
+        if (user.getRoles() == null || user.getRoles().isEmpty()) {
+            return "";
         }
 
-        User user = new User();
-        user.setEmail(req.getEmail());
-        user.setPassword(passwordEncoder.encode(req.getPassword()));
-        user.setRoles(Set.of(
-                new Role(null, PredefinedRole.USER_ROLE, "User role", null)
-        ));
-
-        userRepository.save(user);
-
-        String token = generateJwt(user, accessTokenValidity);
-        return AuthResponse.builder()
-                .token(token)
-                .authenticated(true)
-                .build();
+        return user.getRoles().stream()
+                .map(GrantedAuthority::getAuthority)
+                .map(auth -> auth.startsWith("ROLE_") ? auth : "ROLE_" + auth)
+                .collect(Collectors.joining(" "));
     }
 }
