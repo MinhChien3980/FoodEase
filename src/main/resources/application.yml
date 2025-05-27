@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: FoodEase
+  datasource:
+    url: jdbc:mysql://fe-mysql:3306/foodease?useUnicode=true&characterEncoding=utf8&useSSL=false&createDatabaseIfNotExist=true
+    username: root
+    password:
+  elasticsearch:
+    rest:
+      uris: http://fe-elasticsearch:9200
+
+jwt:
+  access-token-expiry: 3600s
+  refresh-token-expiry: 604800s
+
+api:
+  key:
+  secret:

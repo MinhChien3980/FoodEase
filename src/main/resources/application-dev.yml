@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: FoodEase
+
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    url: jdbc:mysql://fe-mysql:3306/foodease?useUnicode=true&characterEncoding=utf8&useSSL=false&createDatabaseIfNotExist=true
+    username: root
+    password:
+  liquibase:
+    enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  elasticsearch:
+    rest:
+      uris: http://fe-elasticsearch:9200
+
+  docker:
+    compose:
+      enabled: false
+
+  devtools:
+    restart:
+      enabled: true
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    path : /swagger-ui.html
+  api-docs:
+    path : /v3/api-docs
+
+jwt:
+  access-token-expiry: 3600s
+  refresh-token-expiry: 604800s
+
+api:
+  key:
+  secret:
+
+logging:
+  level:
+    root: INFO
+    com.foodease: DEBUG
+    org.springframework.security: DEBUG

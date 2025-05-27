@@ -1,0 +1,11 @@
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+
+RUN apk add --no-cache curl mysql-client
+
+COPY --from=builder /app/target/FoodEase-0.0.1-SNAPSHOT.jar app.jar
+RUN addgroup -S appgrp && adduser -S appuser -G appgrp
+USER appuser
+
+EXPOSE 8080
+ENTRYPOINT ["java","-Xmx512m","-jar","/app/app.jar"]
