@@ -1,6 +1,7 @@
 package com.foodease.myapp.service;
 
 import com.foodease.myapp.repository.MenuItemRepository;
+import com.foodease.myapp.service.dto.request.MenuItemRequest;
 import com.foodease.myapp.service.dto.response.MenuItemResponse;
 import org.springframework.stereotype.Service;
 
@@ -22,20 +23,21 @@ public class MenuItemService {
     }
 
     public List<MenuItemResponse> findByRestaurantId(long restaurantId) {
-        return menuItemRepository.findByRestaurantId(restaurantId).stream()
+        return menuItemRepository.findByRestaurant_Id(restaurantId).stream()
                 .map(MenuItemResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     public List<MenuItemResponse> findByCategoryId(long categoryId) {
-        return menuItemRepository.findByCategoryId(categoryId).stream()
+        return menuItemRepository.findByCategory_Id(categoryId).stream()
                 .map(MenuItemResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
-    public List<MenuItemResponse> findByRestaurantAndCategoryId(long restaurantId, long categoryId) {
-        return menuItemRepository.findByRestaurantId(restaurantId).stream()
-                .filter(menuItem -> menuItem.getCategory() != null && menuItem.getCategory().getId() == categoryId)
+    public List<MenuItemResponse> findByRestaurantAndCategoryId(MenuItemRequest request) {
+        return menuItemRepository.findByRestaurant_IdAndCategory_Id(
+                        request.getRestaurantId(), request.getCategoryId()
+                ).stream()
                 .map(MenuItemResponse::fromEntity)
                 .collect(Collectors.toList());
     }

@@ -28,30 +28,29 @@ public class MenuItemController {
     }
 
     @GetMapping("/restaurant/{id}")
-    public ApiResponse<MenuItemResponse> getMenuItemByRestaurantId(@PathVariable Long id) {
+    public ApiResponse<List<MenuItemResponse>> getMenuItemByRestaurantId(@PathVariable Long id) {
         List<MenuItemResponse> menuItems = menuItemService.findByRestaurantId(id);
-        return ApiResponse.<MenuItemResponse>builder()
+        return ApiResponse.<List<MenuItemResponse>>builder()
                 .code(200)
-                .data((MenuItemResponse) menuItems)
+                .data(menuItems)
                 .build();
     }
 
     @GetMapping("/category/{id}")
-    public ApiResponse<MenuItemResponse> getMenuItemByCategoryIdId(@PathVariable Long id) {
+    public ApiResponse<List<MenuItemResponse>> getMenuItemByCategoryId(@PathVariable Long id) {
         List<MenuItemResponse> menuItems = menuItemService.findByCategoryId(id);
-        return ApiResponse.<MenuItemResponse>builder()
+        return ApiResponse.<List<MenuItemResponse>>builder()
                 .code(200)
-                .data((MenuItemResponse) menuItems)
+                .data(menuItems)
                 .build();
     }
 
 
 
-    @GetMapping("/restaurant/{id}/category/{categoryId}")
+    @PostMapping("/by-restaurant-and-category")
     public ApiResponse<List<MenuItemResponse>> getMenuItemByRestaurantAndCategoryId(
-            @PathVariable("id") Long restaurantId,
-            @PathVariable("categoryId") Long categoryId) {
-        List<MenuItemResponse> menuItems = menuItemService.findByRestaurantAndCategoryId(restaurantId, categoryId);
+            @RequestBody MenuItemRequest request) {
+        List<MenuItemResponse> menuItems = menuItemService.findByRestaurantAndCategoryId(request);
         return ApiResponse.<List<MenuItemResponse>>builder()
                 .code(200)
                 .data(menuItems)
