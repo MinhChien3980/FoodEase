@@ -1,13 +1,13 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
 spring:
   application:
     name: FoodEase
 
-  config:
-    activate:
-      on-profile: dev
-
   datasource:
-    url: jdbc:mysql://fe-mysql:3306/foodease?useUnicode=true&characterEncoding=utf8&useSSL=false&createDatabaseIfNotExist=true
+    url: jdbc:mysql://localhost:3306/foodease?useUnicode=true&characterEncoding=utf8&useSSL=false&createDatabaseIfNotExist=true
     username: root
     password:
   liquibase:
@@ -33,7 +33,11 @@ springdoc:
     enabled: true
     path : /swagger-ui.html
   api-docs:
+    enabled: true
     path : /v3/api-docs
+    groups:
+      enabled: true
+    version: openapi_3_0
 
 jwt:
   valid-duration: 100000 # in second
