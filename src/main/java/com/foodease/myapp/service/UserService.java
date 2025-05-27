@@ -12,9 +12,12 @@ import com.foodease.myapp.service.dto.response.UserResponse;
 import com.foodease.myapp.service.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.apache.coyote.BadRequestException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.beans.Encoder;
 import java.util.Set;
 
 import static lombok.AccessLevel.PRIVATE;
@@ -28,23 +31,47 @@ public class UserService {
     UserRepository   userRepo;
     RoleRepository   roleRepo;
     CityRepository   cityRepo;
+    PasswordEncoder passwordEncoder;
 
     @Transactional
-    public UserResponse createUser(UserCreationRequest req) {
-        User user = mapper.toUser(req);
-        UserProfile profile = mapper.toUserProfile(req);
+    public UserResponse createUser(UserCreationRequest req) throws BadRequestException {
+        if (userRepo.existsByEmail(req.getEmail())) {
+            throw new BadRequestException("Email already in use");
+        }
+
+        User user = new User();
+        user.setLogin(req.getLogin());
+        user.setEmail(req.getEmail());
+        user.setPassword(passwordEncoder.encode(req.getPassword()));
+        user.setActivated(false);
+        user.setLangKey("en");
+        user.setCreatedBy("self");
+
+        Role userRole = roleRepo.findByName("USER")
+                .orElseThrow(() -> new IllegalStateException("USER role not found"));
+        user.setRoles(Set.of(userRole));
 
         City city = cityRepo.findById(req.getCityId())
-                .orElseThrow(() -> new RuntimeException("City không tồn tại id=" + req.getCityId()));
+                .orElseThrow(() -> new BadRequestException("City not found: " + req.getCityId()));
+
+        UserProfile profile = new UserProfile();
+        profile.setFullName(req.getFullName());
+        profile.setPhone(req.getPhone());
+        profile.setReferralCode(req.getReferralCode());
+        profile.setLatitude(req.getLatitude());
+        profile.setLongitude(req.getLongitude());
         profile.setCity(city);
         profile.setUser(user);
         user.setProfile(profile);
 
-        Role userRole = roleRepo.findByName("ROLE_USER")
-                .orElseThrow(() -> new RuntimeException("User role không tồn tại"));
-        user.setRoles(Set.of(userRole));
-
         User saved = userRepo.save(user);
-        return mapper.toUserResponse(saved);
+        return UserResponse.builder()
+                .id(saved.getId())
+                .login(saved.getLogin())
+                .email(saved.getEmail())
+                .fullName(saved.getProfile().getFullName())
+                .phone(saved.getProfile().getPhone())
+                .cityId(saved.getProfile().getCity().getId())
+                .build();
     }
 }
