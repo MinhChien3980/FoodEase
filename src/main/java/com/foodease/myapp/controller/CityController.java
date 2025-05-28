@@ -16,6 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/cities")
 @Tag(name = "City", description = "Operations related to cities")
+@CrossOrigin(origins = "http://localhost:3000")
 @FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
 public class CityController {
     CityService cityService;
