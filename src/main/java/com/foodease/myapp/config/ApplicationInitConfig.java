@@ -1,8 +1,10 @@
 package com.foodease.myapp.config;
 
 import com.foodease.myapp.constant.PredefinedRole;
+import com.foodease.myapp.domain.City;
 import com.foodease.myapp.domain.Role;
 import com.foodease.myapp.domain.User;
+import com.foodease.myapp.repository.CityRepository;
 import com.foodease.myapp.repository.RoleRepository;
 import com.foodease.myapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,13 +27,16 @@ public class ApplicationInitConfig {
     PasswordEncoder passwordEncoder;
 
     @Bean
-    ApplicationRunner init(UserRepository userRepo, RoleRepository roleRepo) {
+    ApplicationRunner init(UserRepository userRepo, RoleRepository roleRepo, CityRepository cityRepo) {
         return args -> {
             String admin = "admin";
             if (userRepo.findByEmail(admin).isEmpty()) {
                 roleRepo.save(new Role(null, PredefinedRole.USER_ROLE, "User role", null));
                 Role rAdmin = roleRepo.save(new Role(null, PredefinedRole.ADMIN_ROLE, "Admin role", null));
-
+                City city = City.builder()
+                        .name("Hà Nội")
+                        .build();
+                cityRepo.save(city);
                 User u = User.builder()
                         .email(admin)
                         .login("admin")

@@ -35,6 +35,10 @@ public class SecurityConfig {
             "/swagger-ui/**",
             "/webjars/**",
             "/auth/**",
+            "/cities/**",
+            "/restaurants/**",
+            "/categories/**",
+            "/menu-items/**",
     };
 
     private final CustomJwtDecoder customJwtDecoder;

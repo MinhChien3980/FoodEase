@@ -5,6 +5,7 @@ import com.foodease.myapp.service.dto.request.UserCreationRequest;
 import com.foodease.myapp.service.dto.response.ApiResponse;
 import com.foodease.myapp.service.dto.response.UserResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpHeaders;
@@ -15,12 +16,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/users")
 @Tag(name = "User-scoped", description = "Operations that act on the currently authenticated user")
 @FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
+@RequiredArgsConstructor
 public class UserController {
     UserService userService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
     @GetMapping("/{id}/identity")
     public ApiResponse<UserResponse> getIdentity(@PathVariable Long id) throws BadRequestException {
         return ApiResponse.< UserResponse > builder()

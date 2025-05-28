@@ -12,18 +12,18 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "order_items")
 public class OrderItem {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "order_id", nullable = false)
-    private Order order;
+    @Column(name="menu_item_id", nullable = false)
+    private Long menuItemId;
 
-    @ManyToOne
-    @JoinColumn(name = "menu_item_id", nullable = false)
-    private MenuItem menuItem;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "order_id")
+    private Order order;
 
     private Integer quantity;
     private BigDecimal price;

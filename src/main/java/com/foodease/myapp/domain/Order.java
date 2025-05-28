@@ -6,6 +6,7 @@ import org.hibernate.proxy.HibernateProxy;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -14,14 +15,17 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "orders")
 public class Order {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name="user_id", nullable=false)
+    private Long userId;
+
+    @OneToMany(mappedBy="order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> items;
 
     @ManyToOne
     @JoinColumn(name = "restaurant_id", nullable = false)
