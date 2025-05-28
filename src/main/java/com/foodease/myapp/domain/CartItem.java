@@ -14,6 +14,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "cart_items")
 public class CartItem {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -5,6 +5,7 @@ import com.foodease.myapp.domain.OrderItem;
 import com.foodease.myapp.repository.OrderRepository;
 import com.foodease.myapp.service.dto.request.OrderRequest;
 import com.foodease.myapp.service.dto.response.OrderResponse;
+import com.foodease.myapp.service.mapper.OrderMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -20,6 +21,7 @@ import static lombok.AccessLevel.PRIVATE;
 @FieldDefaults(level = PRIVATE, makeFinal = true)
 public class OrderService {
     OrderRepository orderRepo;
+    OrderMapper orderMapper;
 
     @Transactional
     public OrderResponse placeOrder(OrderRequest req) {
@@ -38,30 +40,13 @@ public class OrderService {
         ).toList());
 
         Order saved = orderRepo.save(order);
-        return toDto(saved);
+        return orderMapper.toDto(saved);
     }
 
     public List<OrderResponse> listOrders(Long userId) {
         return orderRepo.findAllByUserId(userId)
                 .stream()
-                .map(this::toDto)
+                .map(orderMapper::toDto)
                 .collect(Collectors.toList());
-    }
-
-    private OrderResponse toDto(Order o) {
-        return OrderResponse.builder()
-                .id(o.getId())
-                .userId(o.getUserId())
-                .totalPrice(o.getTotalPrice())
-                .createdAt(o.getCreatedAt())
-                .items(o.getItems().stream().map(oi ->
-                        OrderResponse.Item.builder()
-                                .id(oi.getId())
-                                .menuItemId(oi.getMenuItemId())
-                                .quantity(oi.getQuantity())
-                                .price(oi.getPrice())
-                                .build()
-                ).collect(Collectors.toList()))
-                .build();
     }
 }
