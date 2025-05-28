@@ -4,6 +4,7 @@ import com.foodease.myapp.service.AuthService;
 import com.foodease.myapp.service.UserService;
 import com.foodease.myapp.service.dto.request.AuthRequest;
 import com.foodease.myapp.service.dto.request.IntrospectRequest;
+import com.foodease.myapp.service.dto.request.RegisterRequest;
 import com.foodease.myapp.service.dto.request.UserCreationRequest;
 import com.foodease.myapp.service.dto.response.ApiResponse;
 import com.foodease.myapp.service.dto.response.AuthResponse;
@@ -42,7 +43,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    ApiResponse<String> register(@RequestBody UserCreationRequest req) throws BadRequestException {
+    ApiResponse<String> register(@RequestBody RegisterRequest req) throws BadRequestException {
         var login = userService.createUser(req).getLogin();
         return ApiResponse.<String>builder()
                 .code(201)

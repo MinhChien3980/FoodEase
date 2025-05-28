@@ -7,6 +7,7 @@ import com.foodease.myapp.domain.UserProfile;
 import com.foodease.myapp.repository.CityRepository;
 import com.foodease.myapp.repository.RoleRepository;
 import com.foodease.myapp.repository.UserRepository;
+import com.foodease.myapp.service.dto.request.RegisterRequest;
 import com.foodease.myapp.service.dto.request.UserCreationRequest;
 import com.foodease.myapp.service.dto.response.UserResponse;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -34,18 +35,18 @@ public class UserService {
     PasswordEncoder passwordEncoder;
 
     @Transactional
-    public UserResponse createUser(UserCreationRequest req) throws BadRequestException {
+    public UserResponse createUser(RegisterRequest req) throws BadRequestException {
         if (userRepo.existsByEmail(req.getEmail())) {
             throw new BadRequestException("Email already in use");
         }
 
         User user = new User();
-        user.setLogin(req.getLogin());
         user.setEmail(req.getEmail());
         user.setPassword(passwordEncoder.encode(req.getPassword()));
         user.setActivated(false);
         user.setLangKey("en");
         user.setCreatedBy("self");
+        user.setCreatedAt(java.time.LocalDateTime.now());
 
         Role userRole = roleRepo.findByName("USER")
                 .orElseThrow(() -> new IllegalStateException("USER role not found"));
@@ -57,9 +58,6 @@ public class UserService {
         UserProfile profile = new UserProfile();
         profile.setFullName(req.getFullName());
         profile.setPhone(req.getPhone());
-        profile.setReferralCode(req.getReferralCode());
-        profile.setLatitude(req.getLatitude());
-        profile.setLongitude(req.getLongitude());
         profile.setCity(city);
         profile.setUser(user);
         user.setProfile(profile);
@@ -67,7 +65,6 @@ public class UserService {
         User saved = userRepo.save(user);
         return UserResponse.builder()
                 .id(saved.getId())
-                .login(saved.getLogin())
                 .email(saved.getEmail())
                 .fullName(saved.getProfile().getFullName())
                 .phone(saved.getProfile().getPhone())
