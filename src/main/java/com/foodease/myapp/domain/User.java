@@ -23,7 +23,6 @@ public class User implements IUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
     private String login;
 
     @Column(nullable = false, unique = true)
