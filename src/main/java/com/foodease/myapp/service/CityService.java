@@ -23,6 +23,7 @@ public class CityService {
         List<CityResponse> cityResponses = new ArrayList<>();
         cityRepository.findAll().forEach(city -> {
             CityResponse response = CityResponse.builder()
+                    .id(city.getId())
                     .name(city.getName())
                     .build();
             cityResponses.add(response);
@@ -33,6 +34,7 @@ public class CityService {
     public CityResponse getCityByName(String name) {
         return cityRepository.findByName(name)
                 .map(city -> CityResponse.builder()
+                        .id(city.getId())
                         .name(city.getName())
                         .build())
                 .orElse(null);
@@ -65,8 +67,8 @@ public class CityService {
                 .build();
     }
 
-    public boolean deleteCity(String name) {
-        var cityOptional = cityRepository.findByName(name);
+    public boolean deleteCity(Long id) {
+        var cityOptional = cityRepository.findById(id);
         if (cityOptional.isEmpty()) {
             return false; // City not found
         }

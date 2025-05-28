@@ -83,7 +83,7 @@ public class CityController {
 
     @DeleteMapping("/delete")
     public ApiResponse<Void> deleteCity(
-            @RequestParam String name) {
+            @RequestParam Long name) {
         boolean deleted = cityService.deleteCity(name);
         if (!deleted) {
             return ApiResponse.<Void>builder()

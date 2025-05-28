@@ -14,5 +14,6 @@ import static lombok.AccessLevel.PRIVATE;
 @NoArgsConstructor
 @FieldDefaults(level = PRIVATE)
 public class CityResponse {
+    Long id;
     String name;
 }
