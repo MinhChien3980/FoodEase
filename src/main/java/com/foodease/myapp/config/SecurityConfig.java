@@ -39,6 +39,8 @@ public class SecurityConfig {
             "/restaurants/**",
             "/categories/**",
             "/menu-items/**",
+            "/favorites/**",
+            "/slider-images/**",
     };
 
     private final CustomJwtDecoder customJwtDecoder;
