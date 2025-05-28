@@ -28,9 +28,9 @@ import static lombok.AccessLevel.PRIVATE;
 @FieldDefaults(level = PRIVATE, makeFinal = true)
 public class UserService {
 
-    UserRepository   userRepo;
-    RoleRepository   roleRepo;
-    CityRepository   cityRepo;
+    UserRepository userRepo;
+    RoleRepository roleRepo;
+    CityRepository cityRepo;
     PasswordEncoder passwordEncoder;
 
     @Transactional
@@ -133,11 +133,8 @@ public class UserService {
                 throw new BadRequestException("JWT did not contain a subject");
             }
             return subject;
-
         } catch (ParseException e) {
             throw new BadRequestException("Failed to parse JWT token", e);
-        } catch (BadRequestException e) {
-            throw new RuntimeException(e);
         }
     }
 

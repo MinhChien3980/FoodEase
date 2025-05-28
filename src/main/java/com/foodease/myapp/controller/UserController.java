@@ -49,8 +49,14 @@ public class UserController {
     }
 
     @GetMapping("/profile")
-    public ApiResponse<UserResponse> getProfile(@RequestHeader(HttpHeaders.AUTHORIZATION + "Bearer") String token) throws BadRequestException {
-        UserResponse user = userService.getUserByToken(token);
+    public ApiResponse<UserResponse> profile(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader
+    ) throws BadRequestException {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new BadRequestException("Missing or invalid Authorization header");
+        }
+        String jwt = authHeader.substring(7);
+        UserResponse user = userService.getUserByToken(jwt);
         return ApiResponse.<UserResponse>builder()
                 .code(200)
                 .data(user)

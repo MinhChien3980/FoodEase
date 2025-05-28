@@ -33,7 +33,7 @@ public class UserCreationRequest {
     private String referralCode;
 
     @NotNull(message = "City ID is required")
-    private Integer cityId;
+    private Long cityId;
 
     @Past(message = "Date of birth must be in the past")
     @JsonFormat(pattern = "yyyy-MM-dd")

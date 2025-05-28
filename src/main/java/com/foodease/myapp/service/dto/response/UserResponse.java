@@ -36,7 +36,7 @@ public class UserResponse {
     private String phone;
     private String imageUrl;
     private String referralCode;
-    private Integer cityId;
+    private Long cityId;
     private BigDecimal latitude;
     private BigDecimal longitude;
 }
