@@ -29,23 +29,23 @@ services:
 #      retries: 5
 #      start_period: 10s
 
-  fe-elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
-    restart: unless-stopped
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-    ports:
-      - "9200:9200"
-      - "9300:9300"
-    volumes:
-      - es-data:/usr/share/elasticsearch/data
-    healthcheck:
-      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health?local=true | grep -E '\"status\":\"(green|yellow)\"' || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 20s
+#  fe-elasticsearch:
+#    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
+#    restart: unless-stopped
+#    environment:
+#      - discovery.type=single-node
+#      - xpack.security.enabled=false
+#    ports:
+#      - "9200:9200"
+#      - "9300:9300"
+#    volumes:
+#      - es-data:/usr/share/elasticsearch/data
+#    healthcheck:
+#      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health?local=true | grep -E '\"status\":\"(green|yellow)\"' || exit 1"]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 5
+#      start_period: 20s
 
   fe-mysql:
     image: mysql:latest

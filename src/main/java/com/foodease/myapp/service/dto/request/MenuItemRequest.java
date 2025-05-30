@@ -1,19 +1,31 @@
+// MenuItemRequest.java
 package com.foodease.myapp.service.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.FieldDefaults;
-
-import static lombok.AccessLevel.PRIVATE;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
+import java.math.BigDecimal;
 
 @Data
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
-@FieldDefaults(level = PRIVATE)
+@AllArgsConstructor
+@Builder
 public class MenuItemRequest {
-    Long categoryId;
-    Long restaurantId;;
+    @NotNull
+    private Long restaurantId;
+
+    @NotNull
+    private Long categoryId;
+
+    @NotBlank
+    private String name;
+
+    private String description;
+
+    @NotNull
+    @DecimalMin("0.0")
+    private BigDecimal price;
+
+    private String imageUrl;
 }

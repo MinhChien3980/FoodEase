@@ -3,6 +3,7 @@ package com.foodease.myapp.domain;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -35,4 +36,7 @@ public class Restaurant {
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
+
+    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<MenuItem> menuItems;
 }
