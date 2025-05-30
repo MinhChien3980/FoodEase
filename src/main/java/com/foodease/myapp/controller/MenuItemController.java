@@ -17,7 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/menu-items")
 @Tag(name = "MenuItem", description = "CRUD for menu items")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:5173")
 @RequiredArgsConstructor
 @Validated
 @FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
