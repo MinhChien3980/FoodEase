@@ -69,4 +69,13 @@ public class MenuItemService {
     public void delete(Long id) {
         repo.deleteById(id);
     }
+
+    @Transactional(readOnly = true)
+    public List<MenuItemResponse> findAll() {
+        return repo.findAll()
+                .stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
+    }
+
 }

@@ -16,6 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/restaurants")
+@CrossOrigin(origins = "http://localhost:3000")
 @Tag(name="Restaurant", description="CRUD operations for restaurants")
 @RequiredArgsConstructor
 @Validated

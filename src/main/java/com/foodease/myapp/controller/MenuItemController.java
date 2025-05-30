@@ -17,6 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/menu-items")
 @Tag(name = "MenuItem", description = "CRUD for menu items")
+@CrossOrigin(origins = "http://localhost:3000")
 @RequiredArgsConstructor
 @Validated
 @FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
@@ -73,5 +74,13 @@ public class MenuItemController {
     public ApiResponse<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ApiResponse.<Void>builder().code(204).build();
+    }
+
+    @GetMapping("/all")
+    public ApiResponse<List<MenuItemResponse>> getAll() {
+        return ApiResponse.<List<MenuItemResponse>>builder()
+                .code(200)
+                .data(service.findAll())
+                .build();
     }
 }
