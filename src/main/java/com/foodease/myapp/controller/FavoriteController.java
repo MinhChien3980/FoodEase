@@ -15,6 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/favorites")
 @Tag(name="Favorites", description="Add/remove/list user favorites")
+@CrossOrigin(origins = "http://localhost:5173")
 @RequiredArgsConstructor
 public class FavoriteController {
     private final FavoriteService favService;

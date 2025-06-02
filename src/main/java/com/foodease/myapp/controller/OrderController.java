@@ -14,6 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/orders")
 @Tag(name = "Orders", description = "Place and list orders")
+@CrossOrigin(origins = "http://localhost:5173")
 @RequiredArgsConstructor
 @Validated
 public class OrderController {

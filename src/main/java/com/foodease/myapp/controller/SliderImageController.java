@@ -15,6 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/slider-images")
 @Tag(name = "SliderImages", description = "Manage homepage slider images")
+@CrossOrigin(origins = "http://localhost:5173")
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
 public class SliderImageController {

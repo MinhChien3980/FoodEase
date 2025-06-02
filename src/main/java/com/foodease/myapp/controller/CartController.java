@@ -10,8 +10,9 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/api/cart")
+@RequestMapping("/cart")
 @Tag(name="Cart", description="Manage shopping cart")
+@CrossOrigin(origins = "http://localhost:5173")
 @RequiredArgsConstructor
 @Validated
 public class CartController {

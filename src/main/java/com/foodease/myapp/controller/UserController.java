@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/users")
 @Tag(name = "User-scoped", description = "Operations that act on the currently authenticated user")
+@CrossOrigin(origins = "http://localhost:5173")
 @FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
 @RequiredArgsConstructor
 public class UserController {
