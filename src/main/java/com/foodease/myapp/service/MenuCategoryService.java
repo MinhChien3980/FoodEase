@@ -88,4 +88,10 @@ public class MenuCategoryService {
     }
 
 
+    public List<MenuCategoryResponse> findAll() {
+        return repo.findAll()
+                .stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
+    }
 }

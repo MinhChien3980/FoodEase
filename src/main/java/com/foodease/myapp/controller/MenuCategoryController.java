@@ -5,6 +5,7 @@ import com.foodease.myapp.service.dto.request.MenuCategoryRequest;
 import com.foodease.myapp.service.dto.response.ApiResponse;
 import com.foodease.myapp.service.dto.response.CategoryGroupResponse;
 import com.foodease.myapp.service.dto.response.MenuCategoryResponse;
+import com.foodease.myapp.service.dto.response.MenuItemResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -73,6 +74,14 @@ public class MenuCategoryController {
         return ApiResponse.<List<CategoryGroupResponse>>builder()
                 .code(200)
                 .data(data)
+                .build();
+    }
+
+    @GetMapping("/all")
+    public ApiResponse<List<MenuCategoryResponse>> getAllCategories() {
+        return ApiResponse.<List<MenuCategoryResponse>>builder()
+                .code(200)
+                .data(service.findAll())
                 .build();
     }
 }
