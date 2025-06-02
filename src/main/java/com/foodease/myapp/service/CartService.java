@@ -50,4 +50,21 @@ public class CartService {
                 .map(cartMapper::toDto)
                 .orElseThrow(() -> new IllegalStateException("Cart not found for user: " + userId));
     }
+
+    @Transactional
+    public CartResponse createCart(Long userId) {
+        if (cartRepo.findByUserId(userId).isPresent()) {
+            throw new IllegalStateException("Cart already exists for user: " + userId);
+        }
+
+        Cart cart = Cart.builder()
+                .userId(userId)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        Cart saved = cartRepo.save(cart);
+        return cartMapper.toDto(saved);
+    }
+
+
 }

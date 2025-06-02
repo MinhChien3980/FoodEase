@@ -35,4 +35,15 @@ public class CartController {
                 .data(cart)
                 .build();
     }
+
+    @PostMapping("/{userId}")
+    public ApiResponse<CartResponse> create(@PathVariable Long userId) {
+        CartResponse created = cartService.createCart(userId);
+        return ApiResponse.<CartResponse>builder()
+                .code(201)
+                .data(created)
+                .build();
+    }
+
+
 }
