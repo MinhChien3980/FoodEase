@@ -28,21 +28,20 @@ import java.util.List;
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private static final String[] SWAGGER_WHITELIST = {
-            "/v3/api-docs",       // exact match
-            "/v3/api-docs/**",    // any docs‐by‐group
+    private static final String[] PUBLIC_WHITELIST = {
+            "/v3/api-docs",
+            "/v3/api-docs/**",
             "/swagger-ui.html",
             "/swagger-ui/**",
             "/webjars/**",
+
             "/auth/**",
-            "/cities/**",
             "/restaurants/**",
             "/categories/**",
             "/menu-items/**",
             "/favorites/**",
             "/slider-images/**",
-            "/restaurants/**",
-            "/categories/**",
+            "/cities/**",
     };
 
     private final CustomJwtDecoder customJwtDecoder;
@@ -54,7 +53,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(SWAGGER_WHITELIST).permitAll()
+                        .requestMatchers(PUBLIC_WHITELIST).permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
@@ -67,14 +66,9 @@ public class SecurityConfig {
         return http.build();
     }
 
-    /**
-     * We still need a CORS-configuration‐source bean so that
-     * http.cors() can pick it up.
-     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
-        // only allow these three
         cfg.setAllowedOriginPatterns(List.of(
                 "http://localhost:3000",
                 "http://localhost:3001",
@@ -93,14 +87,9 @@ public class SecurityConfig {
         return src;
     }
 
-    /**
-     * Don’t put swagger paths through the security filter chain at all.
-     * (This is purely optional since we already .permitAll() above,
-     * but it can save a tiny bit of overhead.)
-     */
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.ignoring().requestMatchers(SWAGGER_WHITELIST);
+        return web -> web.ignoring().requestMatchers(PUBLIC_WHITELIST);
     }
 
     @Bean
