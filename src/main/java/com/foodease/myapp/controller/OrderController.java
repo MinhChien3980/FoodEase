@@ -30,8 +30,8 @@ public class OrderController {
                 .build();
     }
 
-    @GetMapping
-    public ApiResponse<List<OrderResponse>> list(@RequestParam Long userId) {
+    @GetMapping("/{userId}")
+    public ApiResponse<List<OrderResponse>> list(@PathVariable Long userId) {
         List<OrderResponse> list = orderService.listOrders(userId);
         return ApiResponse.<List<OrderResponse>>builder()
                 .code(200)

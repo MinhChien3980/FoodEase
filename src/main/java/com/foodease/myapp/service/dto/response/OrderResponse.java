@@ -15,6 +15,7 @@ public class OrderResponse {
     private Long userId;
     private BigDecimal totalPrice;
     private LocalDateTime createdAt;
+    private String activeStatus;
     private List<Item> items;
 
     @Data

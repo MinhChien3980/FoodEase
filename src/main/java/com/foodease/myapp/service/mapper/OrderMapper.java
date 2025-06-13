@@ -33,6 +33,7 @@ public interface OrderMapper {
     })
     OrderItem toEntity(OrderRequest.Item item);
 
+    @Mapping(source = "activeStatus", target = "activeStatus")
     OrderResponse toDto(Order order);
     List<OrderResponse.Item> toDtoItems(List<OrderItem> items);
 
