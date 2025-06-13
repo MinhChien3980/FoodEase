@@ -30,6 +30,7 @@ public class OrderService {
                 .userId(req.getUserId())
                 .totalPrice(req.getTotalPrice())
                 .activeStatus(req.getActiveStatus())
+                .createdAt(req.getCreatedAt())
                 .build();
 
         if (order.getItems() == null) {

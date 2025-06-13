@@ -4,6 +4,7 @@ import lombok.*;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -19,6 +20,7 @@ public class OrderRequest {
     List<Item> items;
 
     String activeStatus;
+    LocalDateTime createdAt;
 
     @Data
     public static class Item {
