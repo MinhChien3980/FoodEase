@@ -18,6 +18,8 @@ public class OrderRequest {
     @NotNull
     List<Item> items;
 
+    String activeStatus;
+
     @Data
     public static class Item {
         @NotNull

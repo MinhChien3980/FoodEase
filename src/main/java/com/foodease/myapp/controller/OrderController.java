@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/orders")
+@RequestMapping("/orders")
 @Tag(name = "Orders", description = "Place and list orders")
 @CrossOrigin(origins = "http://localhost:5173")
 @RequiredArgsConstructor
@@ -25,7 +25,7 @@ public class OrderController {
     public ApiResponse<OrderResponse> place(@RequestBody OrderRequest req) {
         OrderResponse placed = orderService.placeOrder(req);
         return ApiResponse.<OrderResponse>builder()
-                .code(201)
+                .code(200)
                 .data(placed)
                 .build();
     }

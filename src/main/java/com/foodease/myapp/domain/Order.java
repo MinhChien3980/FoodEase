@@ -28,7 +28,7 @@ public class Order {
     private List<OrderItem> items;
 
     @ManyToOne
-    @JoinColumn(name = "restaurant_id", nullable = false)
+    @JoinColumn(name = "restaurant_id")
     private Restaurant restaurant;
 
     @Column(name = "total_price")

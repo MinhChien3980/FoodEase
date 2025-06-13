@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,7 +29,12 @@ public class OrderService {
         Order order = Order.builder()
                 .userId(req.getUserId())
                 .totalPrice(req.getTotalPrice())
+                .activeStatus(req.getActiveStatus())
                 .build();
+
+        if (order.getItems() == null) {
+            order.setItems(new ArrayList<>());
+        }
 
         order.getItems().addAll(req.getItems().stream().map(i ->
                 OrderItem.builder()
