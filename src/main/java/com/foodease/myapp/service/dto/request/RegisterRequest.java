@@ -25,4 +25,6 @@ public class RegisterRequest {
     private String phone;
     private Long cityId;
     private String langKey;
+    private boolean activated;
+    private String login;
 }
