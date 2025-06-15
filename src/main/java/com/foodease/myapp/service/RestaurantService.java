@@ -1,9 +1,7 @@
 package com.foodease.myapp.service;
 
 import com.foodease.myapp.domain.Restaurant;
-import com.foodease.myapp.domain.User;
 import com.foodease.myapp.repository.RestaurantRepository;
-import com.foodease.myapp.repository.UserRepository;
 import com.foodease.myapp.service.dto.request.RestaurantRequest;
 import com.foodease.myapp.service.dto.response.MenuItemSummary;
 import com.foodease.myapp.service.dto.response.RestaurantResponse;
@@ -20,7 +18,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RestaurantService {
     private final RestaurantRepository repo;
-    private final UserRepository userRepo;
     private final RestaurantMapper mapper;
 
     @Transactional(readOnly=true)
@@ -42,11 +39,7 @@ public class RestaurantService {
 
     @Transactional
     public RestaurantResponse create(RestaurantRequest dto) {
-        // ensure owner exists
-        User owner = userRepo.findById(dto.getOwnerId())
-                .orElseThrow(() -> new EntityNotFoundException("User not found: " + dto.getOwnerId()));
         Restaurant r = mapper.toEntity(dto);
-        r.setOwner(owner);
         return mapper.toDto(repo.save(r));
     }
 
@@ -54,10 +47,7 @@ public class RestaurantService {
     public RestaurantResponse update(Long id, RestaurantRequest dto) {
         Restaurant r = repo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Restaurant not found: " + id));
-        User owner = userRepo.findById(dto.getOwnerId())
-                .orElseThrow(() -> new EntityNotFoundException("User not found: " + dto.getOwnerId()));
         mapper.updateFromDto(dto, r);
-        r.setOwner(owner);
         return mapper.toDto(repo.save(r));
     }
 

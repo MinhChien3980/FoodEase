@@ -17,6 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/restaurants")
 @Tag(name="Restaurant", description="CRUD operations for restaurants")
+@CrossOrigin(origins = "http://localhost:5173")
 @RequiredArgsConstructor
 @Validated
 @FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
@@ -48,7 +49,7 @@ public class RestaurantController {
             @Valid @RequestBody RestaurantRequest dto
     ) {
         return ApiResponse.<RestaurantResponse>builder()
-                .code(201)
+                .code(200)
                 .data(service.create(dto))
                 .build();
     }
@@ -69,7 +70,7 @@ public class RestaurantController {
     public ApiResponse<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ApiResponse.<Void>builder()
-                .code(204)
+                .code(200)
                 .build();
     }
 
