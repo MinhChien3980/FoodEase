@@ -12,6 +12,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Set;
+
 @RestController
 @RequestMapping("/users")
 @Tag(name = "User-scoped", description = "Operations that act on the currently authenticated user")
@@ -62,4 +65,13 @@ public class UserController {
                 .data(user)
                 .build();
     }
+
+    @GetMapping
+    public ApiResponse<List<UserResponse>> getAllUsers() {
+        return ApiResponse.<List<UserResponse>>builder()
+                .code(200)
+                .data(userService.getAllUsers())
+                .build();
+    }
+
 }

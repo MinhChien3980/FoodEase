@@ -20,7 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static lombok.AccessLevel.PRIVATE;
 
@@ -136,18 +138,27 @@ public class UserService {
     }
 
     private UserResponse getUserResponse(User user) {
+        UserProfile profile = user.getProfile();
         return UserResponse.builder()
                 .id(user.getId())
                 .login(user.getLogin())
                 .email(user.getEmail())
                 .langKey(user.getLangKey())
                 .activated(user.getActivated())
-                .fullName(user.getProfile().getFullName())
-                .phone(user.getProfile().getPhone())
-                .cityId(user.getProfile().getCity().getId())
-                .latitude(user.getProfile().getLatitude())
-                .longitude(user.getProfile().getLongitude())
-                .imageUrl(user.getProfile().getImageUrl())
+                .fullName(profile != null ? profile.getFullName() : null)
+                .phone(profile != null ? profile.getPhone() : null)
+                .cityId(profile != null && profile.getCity() != null ? profile.getCity().getId() : null)
+                .latitude(profile != null ? profile.getLatitude() : null)
+                .longitude(profile != null ? profile.getLongitude() : null)
+                .imageUrl(profile != null ? profile.getImageUrl() : null)
                 .build();
     }
+
+    public List<UserResponse> getAllUsers() {
+        return userRepo.findAll().stream()
+                .map(this::getUserResponse)
+                .collect(Collectors.toList());
+    }
+
+
 }
