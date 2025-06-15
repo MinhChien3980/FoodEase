@@ -31,17 +31,28 @@ public class ApplicationInitConfig {
         return args -> {
             String admin = "admin";
             if (userRepo.findByEmail(admin).isEmpty()) {
-                roleRepo.save(new Role(null, PredefinedRole.USER_ROLE, "User role", null));
-                Role rAdmin = roleRepo.save(new Role(null, PredefinedRole.ADMIN_ROLE, "Admin role", null));
-                City city = City.builder()
-                        .name("Hà Nội")
-                        .build();
-                cityRepo.save(city);
+                // Check if USER role exists
+                Role userRole = roleRepo.findByName(PredefinedRole.USER_ROLE)
+                        .orElseGet(() -> roleRepo.save(new Role(null, PredefinedRole.USER_ROLE, "User role", null)));
+                
+                // Check if ADMIN role exists
+                Role adminRole = roleRepo.findByName(PredefinedRole.ADMIN_ROLE)
+                        .orElseGet(() -> roleRepo.save(new Role(null, PredefinedRole.ADMIN_ROLE, "Admin role", null)));
+
+                // Check if city exists
+                City city = cityRepo.findByName("Hà Nội")
+                        .orElseGet(() -> {
+                            City newCity = City.builder()
+                                    .name("Hà Nội")
+                                    .build();
+                            return cityRepo.save(newCity);
+                        });
+
                 User u = User.builder()
                         .email(admin)
                         .login("admin")
                         .password(passwordEncoder.encode(admin))
-                        .roles(Set.of(rAdmin))
+                        .roles(Set.of(adminRole))
                         .langKey("en")
                         .activated(true)
                         .createdBy("system")
