@@ -45,8 +45,9 @@ public class UserService {
         User user = new User();
         user.setEmail(req.getEmail());
         user.setPassword(passwordEncoder.encode(req.getPassword()));
-        user.setActivated(false);
-        user.setLangKey("en");
+        user.setActivated(req.isActivated());
+        user.setLangKey("vi");
+        user.setLogin(req.getLogin());
         user.setCreatedBy("self");
         user.setCreatedAt(java.time.LocalDateTime.now());
 
