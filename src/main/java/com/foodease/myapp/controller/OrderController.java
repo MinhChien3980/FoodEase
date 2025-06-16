@@ -38,4 +38,13 @@ public class OrderController {
                 .data(list)
                 .build();
     }
+
+    @GetMapping
+    public ApiResponse<List<OrderResponse>> listAll() {
+        List<OrderResponse> list = orderService.listAllOrders();
+        return ApiResponse.<List<OrderResponse>>builder()
+                .code(200)
+                .data(list)
+                .build();
+    }
 }

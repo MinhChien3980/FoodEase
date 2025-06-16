@@ -68,4 +68,11 @@ public class OrderService {
                 .map(orderMapper::toDto)
                 .collect(Collectors.toList());
     }
+
+    public List<OrderResponse> listAllOrders() {
+        return orderRepo.findAll()
+                .stream()
+                .map(orderMapper::toDto)
+                .collect(Collectors.toList());
+    }
 }
