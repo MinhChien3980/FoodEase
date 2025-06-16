@@ -6,8 +6,9 @@ import com.foodease.myapp.repository.OrderRepository;
 import com.foodease.myapp.repository.MenuItemRepository;
 import com.foodease.myapp.service.dto.request.OrderRequest;
 import com.foodease.myapp.service.dto.response.OrderResponse;
+import com.foodease.myapp.service.dto.response.OrderItemResponse;
 import com.foodease.myapp.service.mapper.OrderMapper;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
@@ -73,6 +74,33 @@ public class OrderService {
         return orderRepo.findAll()
                 .stream()
                 .map(orderMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderItemResponse> getOrderItems(Long orderId) {
+        Order order = orderRepo.findById(orderId)
+                .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException("Order not found: " + orderId));
+        
+        Map<Long, String> menuItemNames = menuItemRepo.findAllById(
+                order.getItems().stream().map(OrderItem::getMenuItemId).collect(Collectors.toList())
+        ).stream().collect(Collectors.toMap(
+                item -> item.getId(),
+                item -> item.getName()
+        ));
+
+        return order.getItems().stream()
+                .map(item -> {
+                    OrderItemResponse response = OrderItemResponse.builder()
+                            .id(item.getId())
+                            .orderId(orderId)
+                            .menuItemId(item.getMenuItemId())
+                            .menuItemName(menuItemNames.get(item.getMenuItemId()))
+                            .quantity(item.getQuantity())
+                            .price(item.getPrice())
+                            .build();
+                    return response;
+                })
                 .collect(Collectors.toList());
     }
 }

@@ -47,4 +47,13 @@ public class OrderController {
                 .data(list)
                 .build();
     }
+
+    @GetMapping("/{orderId}/items")
+    public ApiResponse<List<OrderItemResponse>> getOrderItems(@PathVariable Long orderId) {
+        List<OrderItemResponse> items = orderService.getOrderItems(orderId);
+        return ApiResponse.<List<OrderItemResponse>>builder()
+                .code(200)
+                .data(items)
+                .build();
+    }
 }
