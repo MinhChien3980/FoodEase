@@ -3,6 +3,7 @@ package com.foodease.myapp.service;
 import com.foodease.myapp.domain.Order;
 import com.foodease.myapp.domain.OrderItem;
 import com.foodease.myapp.repository.OrderRepository;
+import com.foodease.myapp.repository.MenuItemRepository;
 import com.foodease.myapp.service.dto.request.OrderRequest;
 import com.foodease.myapp.service.dto.response.OrderResponse;
 import com.foodease.myapp.service.mapper.OrderMapper;
@@ -11,8 +12,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static lombok.AccessLevel.PRIVATE;
@@ -23,6 +26,7 @@ import static lombok.AccessLevel.PRIVATE;
 public class OrderService {
     OrderRepository orderRepo;
     OrderMapper orderMapper;
+    MenuItemRepository menuItemRepo;
 
     @Transactional
     public OrderResponse placeOrder(OrderRequest req) {
@@ -37,12 +41,20 @@ public class OrderService {
             order.setItems(new ArrayList<>());
         }
 
+        // Get all menu items to get their prices
+        Map<Long, BigDecimal> menuItemPrices = menuItemRepo.findAllById(
+                req.getItems().stream().map(i -> i.getMenuItemId()).collect(Collectors.toList())
+        ).stream().collect(Collectors.toMap(
+                item -> item.getId(),
+                item -> item.getPrice()
+        ));
+
         order.getItems().addAll(req.getItems().stream().map(i ->
                 OrderItem.builder()
                         .order(order)
                         .menuItemId(i.getMenuItemId())
                         .quantity(i.getQuantity())
-                        .price(i.getPrice())
+                        .price(menuItemPrices.get(i.getMenuItemId()))
                         .build()
         ).toList());
 
