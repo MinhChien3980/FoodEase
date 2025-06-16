@@ -29,7 +29,7 @@ public class DeliveryMapper {
         
         Delivery entity = new Delivery();
         entity.setStatus(dto.getStatus());
-        entity.setDeliveryTime(LocalDateTime.now());
+        entity.setDeliveryTime(dto.getDeliveryTime() != null ? dto.getDeliveryTime() : LocalDateTime.now());
         return entity;
     }
     
@@ -39,5 +39,8 @@ public class DeliveryMapper {
         }
         
         entity.setStatus(dto.getStatus());
+        if (dto.getDeliveryTime() != null) {
+            entity.setDeliveryTime(dto.getDeliveryTime());
+        }
     }
 } 

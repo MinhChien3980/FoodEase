@@ -78,6 +78,36 @@ public class DeliveryService {
         delivery.setStatus(status);
         delivery.setDeliveryTime(LocalDateTime.now());
         
+        // Update order's active_status based on delivery status
+        Order order = delivery.getOrder();
+        switch (status) {
+            case "PENDING":
+                order.setActiveStatus("PENDING");
+                break;
+            case "CONFIRMED":
+                order.setActiveStatus("CONFIRMED");
+                break;
+            case "PREPARING":
+                order.setActiveStatus("PREPARING");
+                break;
+            case "READY":
+                order.setActiveStatus("READY");
+                break;
+            case "DELIVERING":
+                order.setActiveStatus("DELIVERING");
+                break;
+            case "COMPLETED":
+                order.setActiveStatus("COMPLETED");
+                break;
+            case "CANCELLED":
+                order.setActiveStatus("CANCELLED");
+                break;
+            default:
+                // Keep existing status if not matching any case
+                break;
+        }
+        orderRepo.save(order);
+        
         return mapper.toDto(repo.save(delivery));
     }
 
