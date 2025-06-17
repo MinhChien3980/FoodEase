@@ -137,6 +137,11 @@
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-oauth2-jose</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.stripe</groupId>
+			<artifactId>stripe-java</artifactId>
+			<version>24.16.0</version>
+		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>

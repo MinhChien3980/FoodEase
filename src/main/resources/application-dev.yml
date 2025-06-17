@@ -51,3 +51,7 @@ logging:
     root: INFO
     com.foodease: DEBUG
     org.springframework.security: DEBUG
+
+stripe:
+  api:
+    key: sk_test_51Qg00nFl6JPDGnPVh6TosZpbfyyfoh0hQwuykM6xWJkHIgoJKk4YJDKzvWwubCVzLsv5UQm2ihe8FjyM3J0h0q6X00zIoJsUAl

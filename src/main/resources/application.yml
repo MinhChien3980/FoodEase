@@ -46,6 +46,10 @@ jwt:
 api:
   secret: 3d449436ff8b2668fde0409c7d01b1ad0eca19e7d39f7b8c59cbe979668795a1
 
+stripe:
+  api:
+    key: sk_test_51Qg00nFl6JPDGnPVh6TosZpbfyyfoh0hQwuykM6xWJkHIgoJKk4YJDKzvWwubCVzLsv5UQm2ihe8FjyM3J0h0q6X00zIoJsUAl
+
 logging:
   level:
     root: INFO
