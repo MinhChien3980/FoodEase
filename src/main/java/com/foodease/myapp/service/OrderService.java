@@ -35,6 +35,7 @@ public class OrderService {
                 .totalPrice(req.getTotalPrice())
                 .activeStatus(req.getActiveStatus())
                 .createdAt(req.getCreatedAt())
+                .paymentMethod(req.getPaymentMethod())
                 .build();
 
         if (order.getItems() == null) {

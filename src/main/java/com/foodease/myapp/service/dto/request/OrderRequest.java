@@ -20,6 +20,7 @@ public class OrderRequest {
 
     String activeStatus;
     LocalDateTime createdAt;
+    String paymentMethod;
 
     @Data
     public static class Item {
