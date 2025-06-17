@@ -80,7 +80,7 @@ public class SecurityConfig {
         ));
         cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         cfg.setAllowedHeaders(List.of("*"));
-        cfg.setAllowCredentials(true);
+        cfg.setAllowCredentials(Boolean.TRUE);
 
         UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();
         src.registerCorsConfiguration("/**", cfg);

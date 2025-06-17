@@ -4,6 +4,8 @@ import com.foodease.myapp.domain.City;
 import com.foodease.myapp.domain.Role;
 import com.foodease.myapp.domain.User;
 import com.foodease.myapp.domain.UserProfile;
+import com.foodease.myapp.exception.AppException;
+import com.foodease.myapp.exception.ErrorCode;
 import com.foodease.myapp.repository.CityRepository;
 import com.foodease.myapp.repository.RoleRepository;
 import com.foodease.myapp.repository.UserRepository;
@@ -14,7 +16,6 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.apache.coyote.BadRequestException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,9 +38,9 @@ public class UserService {
     PasswordEncoder passwordEncoder;
 
     @Transactional
-    public UserResponse createUser(RegisterRequest req) throws BadRequestException {
+    public UserResponse createUser(RegisterRequest req) {
         if (userRepo.existsByEmail(req.getEmail())) {
-            throw new BadRequestException("Email already in use");
+            throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
         User user = new User();
@@ -56,7 +57,7 @@ public class UserService {
         user.setRoles(Set.of(userRole));
 
         City city = cityRepo.findById(req.getCityId())
-                .orElseThrow(() -> new BadRequestException("City not found: " + req.getCityId()));
+                .orElseThrow(() -> new AppException(ErrorCode.CITY_NOT_FOUND));
 
         UserProfile profile = new UserProfile();
         profile.setFullName(req.getFullName());
@@ -75,19 +76,19 @@ public class UserService {
                 .build();
     }
 
-    public UserResponse getLoginIdentity(Long userId) throws BadRequestException {
+    public UserResponse getLoginIdentity(Long userId) {
         User user = userRepo.findById(userId)
-                .orElseThrow(() -> new BadRequestException("User not found: " + userId));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         return getUserResponse(user);
     }
 
-    public UserResponse updateUser(Long userId, UserCreationRequest req) throws BadRequestException {
+    public UserResponse updateUser(Long userId, UserCreationRequest req) {
         User user = userRepo.findById(userId)
-                .orElseThrow(() -> new BadRequestException("User not found: " + userId));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         if (req.getEmail() != null && !req.getEmail().equals(user.getEmail()) && userRepo.existsByEmail(req.getEmail())) {
-            throw new BadRequestException("Email already in use");
+            throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
         user.setLogin(req.getLogin());
@@ -97,7 +98,7 @@ public class UserService {
         user.setLangKey(req.getLangKey());
 
         City city = cityRepo.findById(req.getCityId())
-                .orElseThrow(() -> new BadRequestException("City not found: " + req.getCityId()));
+                .orElseThrow(() -> new AppException(ErrorCode.CITY_NOT_FOUND));
 
         UserProfile profile = user.getProfile();
         profile.setFullName(req.getFullName());
@@ -111,30 +112,31 @@ public class UserService {
         return getUserResponse(updated);
     }
 
-    public void deleteUser(Long userId) throws BadRequestException {
+    public void deleteUser(Long userId) {
         User user = userRepo.findById(userId)
-                .orElseThrow(() -> new BadRequestException("User not found: " + userId));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         userRepo.delete(user);
     }
-    public UserResponse getUserByToken(String token) throws BadRequestException {
+    
+    public UserResponse getUserByToken(String token) {
         String email = extractEmailFromToken(token);
         User user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new BadRequestException("User not found for email: " + email));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         return getUserResponse(user);
     }
 
-    private String extractEmailFromToken(String token) throws BadRequestException {
+    private String extractEmailFromToken(String token) {
         try {
             SignedJWT jwt = SignedJWT.parse(token);
             JWTClaimsSet claims = jwt.getJWTClaimsSet();
 
             String subject = claims.getSubject();
             if (subject == null) {
-                throw new BadRequestException("JWT did not contain a subject");
+                throw new AppException(ErrorCode.INVALID_REQUEST);
             }
             return subject;
         } catch (ParseException e) {
-            throw new BadRequestException("Failed to parse JWT token", e);
+            throw new AppException(ErrorCode.INVALID_REQUEST);
         }
     }
 

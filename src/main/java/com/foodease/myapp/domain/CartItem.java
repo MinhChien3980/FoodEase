@@ -29,4 +29,13 @@ public class CartItem {
 
     @Column(nullable=false)
     private Integer quantity;
+    
+    @Column(name="special_instructions", columnDefinition = "text")
+    private String specialInstructions;
+    
+    @Column(name="customizations", columnDefinition = "text")
+    private String customizations; // JSON string for customizations
+    
+    @Column(name="total_price")
+    private Long totalPrice;
 }

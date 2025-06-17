@@ -4,9 +4,13 @@ import com.foodease.myapp.domain.*;
 import com.foodease.myapp.repository.*;
 import com.foodease.myapp.service.dto.request.MenuItemRequest;
 import com.foodease.myapp.service.dto.response.MenuItemResponse;
+import com.foodease.myapp.service.dto.response.PaginatedMenuItemResponse;
 import com.foodease.myapp.service.mapper.MenuItemMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -76,6 +80,43 @@ public class MenuItemService {
                 .stream()
                 .map(mapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public PaginatedMenuItemResponse getMenuItemsByRestaurant(
+            Long restaurantId, Long categoryId, String search, Integer page, Integer limit) {
+        
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<MenuItem> menuItemPage;
+        
+        if (categoryId != null && search != null && !search.trim().isEmpty()) {
+            menuItemPage = repo.findByRestaurantIdAndCategoryIdAndNameContainingIgnoreCase(
+                    restaurantId, categoryId, search, pageable);
+        } else if (categoryId != null) {
+            menuItemPage = repo.findByRestaurantIdAndCategoryId(restaurantId, categoryId, pageable);
+        } else if (search != null && !search.trim().isEmpty()) {
+            menuItemPage = repo.findByRestaurantIdAndNameContainingIgnoreCase(
+                    restaurantId, search, pageable);
+        } else {
+            menuItemPage = repo.findByRestaurantId(restaurantId, pageable);
+        }
+        
+        List<MenuItemResponse> menuItems = menuItemPage.getContent()
+                .stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
+        
+        PaginatedMenuItemResponse.Pagination pagination = PaginatedMenuItemResponse.Pagination.builder()
+                .currentPage(page)
+                .totalPages(menuItemPage.getTotalPages())
+                .totalItems(menuItemPage.getTotalElements())
+                .itemsPerPage(limit)
+                .build();
+        
+        return PaginatedMenuItemResponse.builder()
+                .data(menuItems)
+                .pagination(pagination)
+                .build();
     }
 
 }

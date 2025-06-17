@@ -3,7 +3,6 @@ package com.foodease.myapp.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -26,5 +25,5 @@ public class OrderItem {
     private Order order;
 
     private Integer quantity;
-    private BigDecimal price;
+    private Long price;
 }

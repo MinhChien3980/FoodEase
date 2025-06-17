@@ -2,8 +2,10 @@ package com.foodease.myapp.controller;
 
 import com.foodease.myapp.service.FavoriteService;
 import com.foodease.myapp.service.dto.request.FavoriteRequest;
+import com.foodease.myapp.service.dto.request.ToggleFavoriteRequest;
 import com.foodease.myapp.service.dto.response.ApiResponse;
 import com.foodease.myapp.service.dto.response.FavoriteResponse;
+import com.foodease.myapp.service.dto.response.ToggleFavoriteResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -51,6 +53,16 @@ public class FavoriteController {
         return ApiResponse.<List<FavoriteResponse>>builder()
                 .code(200)
                 .data(list)
+                .build();
+    }
+
+    @PostMapping("/toggle")
+    public ApiResponse<ToggleFavoriteResponse> toggleFavorite(@Valid @RequestBody ToggleFavoriteRequest request) {
+        ToggleFavoriteResponse result = favService.toggleFavorite(request);
+        return ApiResponse.<ToggleFavoriteResponse>builder()
+                .code(200)
+                .message("Favorite status updated")
+                .data(result)
                 .build();
     }
 }

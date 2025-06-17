@@ -13,7 +13,7 @@ import com.foodease.myapp.service.dto.response.UserResponse;
 import com.nimbusds.jose.JOSEException;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.apache.coyote.BadRequestException;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
@@ -43,7 +43,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    ApiResponse<String> register(@RequestBody RegisterRequest req) throws BadRequestException {
+    ApiResponse<String> register(@RequestBody RegisterRequest req) {
         var login = userService.createUser(req).getLogin();
         return ApiResponse.<String>builder()
                 .code(201)

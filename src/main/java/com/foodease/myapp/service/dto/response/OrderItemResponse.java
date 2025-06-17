@@ -2,8 +2,6 @@ package com.foodease.myapp.service.dto.response;
 
 import lombok.*;
 
-import java.math.BigDecimal;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,5 +12,5 @@ public class OrderItemResponse {
     private Long menuItemId;
     private String menuItemName;
     private Integer quantity;
-    private BigDecimal price;
+    private Long price;
 } 

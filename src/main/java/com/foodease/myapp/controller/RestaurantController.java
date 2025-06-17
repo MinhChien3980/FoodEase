@@ -1,10 +1,12 @@
 package com.foodease.myapp.controller;
 
 import com.foodease.myapp.service.RestaurantService;
+import com.foodease.myapp.service.MenuItemService;
 import com.foodease.myapp.service.dto.request.RestaurantRequest;
 import com.foodease.myapp.service.dto.response.ApiResponse;
 import com.foodease.myapp.service.dto.response.RestaurantResponse;
 import com.foodease.myapp.service.dto.response.RestaurantWithItemsResponse;
+import com.foodease.myapp.service.dto.response.PaginatedMenuItemResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ import java.util.List;
 public class RestaurantController {
 
     RestaurantService service;
+    MenuItemService menuItemService;
 
     @GetMapping
     public ApiResponse<List<RestaurantResponse>> list(
@@ -88,6 +91,23 @@ public class RestaurantController {
         return ApiResponse.<List<RestaurantWithItemsResponse>>builder()
                 .code(200)
                 .data(service.getAll())
+                .build();
+    }
+
+    @GetMapping("/{restaurantId}/menu-items")
+    public ApiResponse<PaginatedMenuItemResponse> getMenuItems(
+            @PathVariable Long restaurantId,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer limit
+    ) {
+        PaginatedMenuItemResponse menuItems = menuItemService.getMenuItemsByRestaurant(
+                restaurantId, categoryId, search, page, limit);
+        return ApiResponse.<PaginatedMenuItemResponse>builder()
+                .code(200)
+                .message("Success")
+                .data(menuItems)
                 .build();
     }
 }

@@ -3,7 +3,9 @@ package com.foodease.myapp.service;
 import com.foodease.myapp.domain.Favorite;
 import com.foodease.myapp.repository.FavoriteRepository;
 import com.foodease.myapp.service.dto.request.FavoriteRequest;
+import com.foodease.myapp.service.dto.request.ToggleFavoriteRequest;
 import com.foodease.myapp.service.dto.response.FavoriteResponse;
+import com.foodease.myapp.service.dto.response.ToggleFavoriteResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,6 +50,47 @@ public class FavoriteService {
         return repo.findByUserIdAndFavoritableType(userId, type).stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public ToggleFavoriteResponse toggleFavorite(ToggleFavoriteRequest request) {
+        // For now, assume we get user ID from authentication context
+        // In real implementation, extract from JWT token
+        Long userId = getCurrentUserId(); // This needs to be implemented
+        String favoritableType = "menu_item"; // Since we're dealing with menu items
+        
+        // Check if favorite already exists
+        var existingFavorite = repo.findByUserIdAndFavoritableTypeAndFavoritableId(
+                userId, favoritableType, request.getMenuItemId());
+        
+        boolean isFavorite;
+        if (existingFavorite.isPresent()) {
+            // Remove from favorites
+            repo.delete(existingFavorite.get());
+            isFavorite = false;
+        } else {
+            // Add to favorites
+            Favorite favorite = Favorite.builder()
+                    .userId(userId)
+                    .favoritableType(favoritableType)
+                    .favoritableId(request.getMenuItemId())
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            repo.save(favorite);
+            isFavorite = true;
+        }
+        
+        return ToggleFavoriteResponse.builder()
+                .menuItemId(request.getMenuItemId())
+                .isFavorite(isFavorite)
+                .build();
+    }
+    
+    // This method needs to be implemented based on your authentication system
+    private Long getCurrentUserId() {
+        // For now, return a dummy user ID
+        // In real implementation, extract from JWT token or Spring Security context
+        return 1L; // TODO: Implement proper user ID retrieval
     }
 
     private FavoriteResponse toDto(Favorite f) {

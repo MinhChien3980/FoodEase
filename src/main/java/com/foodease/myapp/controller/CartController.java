@@ -3,6 +3,7 @@ package com.foodease.myapp.controller;
 import com.foodease.myapp.service.*;
 import com.foodease.myapp.service.dto.request.*;
 import com.foodease.myapp.service.dto.response.*;
+import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -42,6 +43,16 @@ public class CartController {
         return ApiResponse.<CartResponse>builder()
                 .code(201)
                 .data(created)
+                .build();
+    }
+
+    @PostMapping("/add")
+    public ApiResponse<AddToCartResponse> addToCart(@Valid @RequestBody AddToCartRequest request) {
+        AddToCartResponse result = cartService.addToCart(request);
+        return ApiResponse.<AddToCartResponse>builder()
+                .code(201)
+                .message("Item added to cart successfully")
+                .data(result)
                 .build();
     }
 

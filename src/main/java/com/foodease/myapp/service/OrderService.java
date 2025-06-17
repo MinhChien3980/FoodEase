@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +42,7 @@ public class OrderService {
         }
 
         // Get all menu items to get their prices
-        Map<Long, BigDecimal> menuItemPrices = menuItemRepo.findAllById(
+        Map<Long, Long> menuItemPrices = menuItemRepo.findAllById(
                 req.getItems().stream().map(i -> i.getMenuItemId()).collect(Collectors.toList())
         ).stream().collect(Collectors.toMap(
                 item -> item.getId(),

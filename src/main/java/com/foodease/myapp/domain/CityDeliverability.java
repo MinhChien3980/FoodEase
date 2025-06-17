@@ -13,7 +13,7 @@ import lombok.*;
 public class CityDeliverability {
     @Id
     @Column(name = "city_id")
-    private Integer cityId;
+    private Long cityId;
 
     @OneToOne
     @MapsId

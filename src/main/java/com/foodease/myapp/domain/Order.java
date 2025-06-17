@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -32,19 +31,19 @@ public class Order {
     private Restaurant restaurant;
 
     @Column(name = "total_price")
-    private BigDecimal totalPrice;
+    private Long totalPrice;
 
     @Column(name = "delivery_charge")
-    private BigDecimal deliveryCharge;
+    private Long deliveryCharge;
 
     @Column(name = "tax_amount")
-    private BigDecimal taxAmount;
+    private Long taxAmount;
 
     @Column(name = "tax_percentage")
-    private BigDecimal taxPercentage;
+    private Long taxPercentage;
 
     @Column(name = "final_total")
-    private BigDecimal finalTotal;
+    private Long finalTotal;
 
     @ManyToOne
     @JoinColumn(name = "promo_code_id")

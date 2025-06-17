@@ -3,7 +3,6 @@ package com.foodease.myapp.service.dto.request;
 import lombok.*;
 import jakarta.validation.constraints.*;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -15,7 +14,7 @@ public class OrderRequest {
     @NotNull
     Long userId;
     @NotNull
-    BigDecimal totalPrice;
+    Long totalPrice;
     @NotNull
     List<Item> items;
 
@@ -29,6 +28,6 @@ public class OrderRequest {
         @NotNull
         Integer quantity;
         @NotNull
-        BigDecimal price;
+        Long price;
     }
 }
