@@ -29,7 +29,7 @@ public class ApplicationInitConfig {
     @Bean
     ApplicationRunner init(UserRepository userRepo, RoleRepository roleRepo, CityRepository cityRepo) {
         return args -> {
-            String admin = "admin";
+            String admin = "admin@gmail.com";
             if (userRepo.findByEmail(admin).isEmpty()) {
                 // Check if USER role exists
                 Role userRole = roleRepo.findByName(PredefinedRole.USER_ROLE)
