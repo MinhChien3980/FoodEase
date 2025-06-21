@@ -33,18 +33,25 @@ springdoc:
     enabled: true
     path : /swagger-ui.html
   api-docs:
+    enabled: true
     path : /v3/api-docs
+    groups:
+      enabled: true
+    version: openapi_3_0
 
 jwt:
-  access-token-expiry: 3600s
-  refresh-token-expiry: 604800s
+  valid-duration: 100000 # in second
+  refreshable-duration: 100000 # in seconds
 
 api:
-  key:
-  secret:
+  secret: 3d449436ff8b2668fde0409c7d01b1ad0eca19e7d39f7b8c59cbe979668795a1
 
 logging:
   level:
     root: INFO
     com.foodease: DEBUG
     org.springframework.security: DEBUG
+
+stripe:
+  api:
+    key: sk_test_51Qg00nFl6JPDGnPVh6TosZpbfyyfoh0hQwuykM6xWJkHIgoJKk4YJDKzvWwubCVzLsv5UQm2ihe8FjyM3J0h0q6X00zIoJsUAl

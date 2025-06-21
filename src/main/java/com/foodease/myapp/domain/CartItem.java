@@ -14,18 +14,28 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "cart_items")
 public class CartItem {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "cart_id", nullable = false)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "cart_id")
     private Cart cart;
 
-    @ManyToOne
-    @JoinColumn(name = "menu_item_id", nullable = false)
-    private MenuItem menuItem;
+    @Column(name="menu_item_id", nullable = false)
+    private Long menuItemId;
 
-    private Integer quantity = 1;
+    @Column(nullable=false)
+    private Integer quantity;
+    
+    @Column(name="special_instructions", columnDefinition = "text")
+    private String specialInstructions;
+    
+    @Column(name="customizations", columnDefinition = "text")
+    private String customizations; // JSON string for customizations
+    
+    @Column(name="total_price")
+    private Long totalPrice;
 }

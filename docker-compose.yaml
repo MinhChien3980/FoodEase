@@ -3,58 +3,35 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile
-    image: foodease:latest
-    container_name: foodease-app
-    volumes:
-      - ~/.m2:/root/.m2
-      - ./:/app
-    command: mvn spring-boot:run -Dspring-boot.run.fork=false -Dspring-boot.run.profiles=dev
-    environment:
-      - _JAVA_OPTIONS=-Xmx512m -Xms256m
-      - MANAGEMENT_PROMETHEUS_METRICS_EXPORT_ENABLED=true
-      - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_DATASOURCE_URL=jdbc:mysql://fe-mysql:3306/foodease?useUnicode=true&characterEncoding=utf8&useSSL=false&createDatabaseIfNotExist=true
-      - SPRING_ELASTICSEARCH_URIS=http://fe-elasticsearch:9200
-    ports:
-      - "8080:8080"
-      - "5005:5005"
-    depends_on:
-      - fe-mysql
-      - fe-elasticsearch
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 10s
-
-  fe-elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
+      dockerfile: Dockerfile_prod
+    image: foodease-app
+    container_name: foodease-app-prod
     restart: unless-stopped
     environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mysql://fe-mysql:3306/${MYSQL_DATABASE}?useUnicode=true&characterEncoding=utf8&useSSL=false
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USER}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD}
     ports:
-      - "9200:9200"
-      - "9300:9300"
-    volumes:
-      - es-data:/usr/share/elasticsearch/data
+      - "8080:8080"
+    depends_on:
+      - fe-mysql
     healthcheck:
-      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health?local=true | grep -E '\"status\":\"(green|yellow)\"' || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/api/actuator/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 20s
+      start_period: 30s
 
   fe-mysql:
     image: mysql:latest
+    container_name: fe-mysql-prod
     restart: unless-stopped
     environment:
-      - MYSQL_DATABASE=foodease
-      - MYSQL_PASSWORD=123123
-      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
-      - MYSQL_USER=myuser
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
@@ -68,5 +45,4 @@ services:
 
 volumes:
   mysql-data:
-  es-data:
   m2-cache:

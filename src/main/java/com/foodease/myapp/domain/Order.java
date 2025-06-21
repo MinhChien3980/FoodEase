@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -14,33 +14,36 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "orders")
 public class Order {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name="user_id", nullable=false)
+    private Long userId;
+
+    @OneToMany(mappedBy="order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> items;
 
     @ManyToOne
-    @JoinColumn(name = "restaurant_id", nullable = false)
+    @JoinColumn(name = "restaurant_id")
     private Restaurant restaurant;
 
     @Column(name = "total_price")
-    private BigDecimal totalPrice;
+    private Long totalPrice;
 
     @Column(name = "delivery_charge")
-    private BigDecimal deliveryCharge;
+    private Long deliveryCharge;
 
     @Column(name = "tax_amount")
-    private BigDecimal taxAmount;
+    private Long taxAmount;
 
     @Column(name = "tax_percentage")
-    private BigDecimal taxPercentage;
+    private Long taxPercentage;
 
     @Column(name = "final_total")
-    private BigDecimal finalTotal;
+    private Long finalTotal;
 
     @ManyToOne
     @JoinColumn(name = "promo_code_id")

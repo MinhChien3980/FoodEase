@@ -9,6 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "slider_images")
 public class SliderImage {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,6 +20,7 @@ public class SliderImage {
 
     private String link;
 
-    @Column(name = "sort_order")
+    @Column(name = "sort_order", nullable = false)
+    @Builder.Default
     private Integer sortOrder = 0;
 }

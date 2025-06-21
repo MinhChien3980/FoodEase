@@ -14,21 +14,24 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "favorites")
+@Builder
+@Table(name = "favorites",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"user_id","favoritable_type","favoritable_id"})
+        })
 public class Favorite {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name="user_id", nullable=false)
+    private Long userId;
 
-    @Column(name = "favoritable_type", nullable = false)
+    @Column(name="favoritable_type", nullable=false)
     private String favoritableType;
 
-    @Column(name = "favoritable_id", nullable = false)
+    @Column(name="favoritable_id", nullable=false)
     private Long favoritableId;
 
-    @Column(name = "created_at")
+    @Column(name="created_at", nullable=false)
     private LocalDateTime createdAt = LocalDateTime.now();
 }

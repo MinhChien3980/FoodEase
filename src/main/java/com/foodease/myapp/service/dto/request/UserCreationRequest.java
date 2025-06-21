@@ -12,8 +12,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class UserCreationRequest {
 
-    @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
     private String login;
 
     @NotBlank(message = "Email is required")
@@ -33,7 +31,7 @@ public class UserCreationRequest {
     private String referralCode;
 
     @NotNull(message = "City ID is required")
-    private Integer cityId;
+    private Long cityId;
 
     @Past(message = "Date of birth must be in the past")
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -41,4 +39,6 @@ public class UserCreationRequest {
 
     private BigDecimal latitude;
     private BigDecimal longitude;
+
+    private String langKey;
 }
