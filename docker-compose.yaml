@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile_prod
-    image: ghcr.io/${GITHUB_REPOSITORY:-your-github-username/foodease}:${IMAGE_TAG:-latest}
+    image: foodease-app
     container_name: foodease-app-prod
     restart: unless-stopped
     environment:
