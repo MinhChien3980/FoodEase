@@ -16,9 +16,6 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-  elasticsearch:
-    rest:
-      uris: http://fe-elasticsearch:9200
 
   docker:
     compose:

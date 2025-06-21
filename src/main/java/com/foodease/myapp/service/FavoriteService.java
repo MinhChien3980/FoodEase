@@ -1,105 +1,124 @@
 package com.foodease.myapp.service;
 
 import com.foodease.myapp.domain.Favorite;
+import com.foodease.myapp.domain.MenuItem;
+import com.foodease.myapp.domain.Restaurant;
+import com.foodease.myapp.domain.User;
+import com.foodease.myapp.exception.AppException;
+import com.foodease.myapp.exception.ErrorCode;
 import com.foodease.myapp.repository.FavoriteRepository;
+import com.foodease.myapp.repository.MenuItemRepository;
+import com.foodease.myapp.repository.RestaurantRepository;
+import com.foodease.myapp.repository.UserRepository;
 import com.foodease.myapp.service.dto.request.FavoriteRequest;
-import com.foodease.myapp.service.dto.request.ToggleFavoriteRequest;
-import com.foodease.myapp.service.dto.response.FavoriteResponse;
+import com.foodease.myapp.service.dto.response.MenuItemResponse;
+import com.foodease.myapp.service.dto.response.RestaurantResponse;
 import com.foodease.myapp.service.dto.response.ToggleFavoriteResponse;
+import com.foodease.myapp.service.mapper.MenuItemMapper;
+import com.foodease.myapp.service.mapper.RestaurantMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class FavoriteService {
-    private final FavoriteRepository repo;
+    private final FavoriteRepository favoriteRepository;
+    private final UserRepository userRepository;
+    private final RestaurantRepository restaurantRepository;
+    private final MenuItemRepository menuItemRepository;
+    private final RestaurantMapper restaurantMapper;
+    private final MenuItemMapper menuItemMapper;
 
     @Transactional
-    public FavoriteResponse addFavorite(FavoriteRequest req) {
-        // prevent duplicates
-        repo.findByUserIdAndFavoritableTypeAndFavoritableId(
-                req.getUserId(), req.getFavoritableType(), req.getFavoritableId()
-        ).ifPresent(f -> {
-            throw new IllegalStateException("Already a favorite");
-        });
+    public ToggleFavoriteResponse toggleFavorite(FavoriteRequest request) {
+        User user = getCurrentUser();
+        String favoritableType = request.getFavoritableType();
+        Long favoritableId = request.getFavoritableId();
 
-        Favorite fav = Favorite.builder()
-                .userId(req.getUserId())
-                .favoritableType(req.getFavoritableType())
-                .favoritableId(req.getFavoritableId())
-                .createdAt(LocalDateTime.now())
-                .build();
+        validateFavoritable(favoritableType, favoritableId);
 
-        Favorite saved = repo.save(fav);
-        return toDto(saved);
-    }
+        Optional<Favorite> existingFavorite = favoriteRepository.findByUserIdAndFavoritableTypeAndFavoritableId(
+                user.getId(), favoritableType, favoritableId);
 
-    @Transactional
-    public void removeFavorite(FavoriteRequest req) {
-        repo.deleteByUserIdAndFavoritableTypeAndFavoritableId(
-                req.getUserId(), req.getFavoritableType(), req.getFavoritableId());
-    }
-
-    @Transactional(readOnly=true)
-    public List<FavoriteResponse> listFavorites(Long userId, String type) {
-        return repo.findByUserIdAndFavoritableType(userId, type).stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
-    }
-
-    @Transactional
-    public ToggleFavoriteResponse toggleFavorite(ToggleFavoriteRequest request) {
-        // For now, assume we get user ID from authentication context
-        // In real implementation, extract from JWT token
-        Long userId = getCurrentUserId(); // This needs to be implemented
-        String favoritableType = "menu_item"; // Since we're dealing with menu items
-        
-        // Check if favorite already exists
-        var existingFavorite = repo.findByUserIdAndFavoritableTypeAndFavoritableId(
-                userId, favoritableType, request.getMenuItemId());
-        
         boolean isFavorite;
         if (existingFavorite.isPresent()) {
-            // Remove from favorites
-            repo.delete(existingFavorite.get());
+            favoriteRepository.delete(existingFavorite.get());
             isFavorite = false;
         } else {
-            // Add to favorites
             Favorite favorite = Favorite.builder()
-                    .userId(userId)
+                    .userId(user.getId())
                     .favoritableType(favoritableType)
-                    .favoritableId(request.getMenuItemId())
+                    .favoritableId(favoritableId)
                     .createdAt(LocalDateTime.now())
                     .build();
-            repo.save(favorite);
+            favoriteRepository.save(favorite);
             isFavorite = true;
         }
-        
+
         return ToggleFavoriteResponse.builder()
-                .menuItemId(request.getMenuItemId())
+                .favoritableId(favoritableId)
+                .favoritableType(favoritableType)
                 .isFavorite(isFavorite)
                 .build();
     }
-    
-    // This method needs to be implemented based on your authentication system
-    private Long getCurrentUserId() {
-        // For now, return a dummy user ID
-        // In real implementation, extract from JWT token or Spring Security context
-        return 1L; // TODO: Implement proper user ID retrieval
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> getFavorites() {
+        User user = getCurrentUser();
+        Map<String, Object> favoritesMap = new HashMap<>();
+
+        List<Favorite> restaurantFavorites = favoriteRepository.findByUserIdAndFavoritableType(user.getId(), "restaurant");
+        if(restaurantFavorites != null && !restaurantFavorites.isEmpty()){
+            List<Long> restaurantIds = restaurantFavorites.stream().map(Favorite::getFavoritableId).collect(Collectors.toList());
+            List<Restaurant> restaurants = restaurantRepository.findAllById(restaurantIds);
+            List<RestaurantResponse> restaurantResponses = restaurants.stream()
+                    .map(restaurantMapper::toDto)
+                    .collect(Collectors.toList());
+            favoritesMap.put("restaurants", restaurantResponses);
+        }
+
+
+        List<Favorite> menuItemFavorites = favoriteRepository.findByUserIdAndFavoritableType(user.getId(), "menu_item");
+        if(menuItemFavorites != null && !menuItemFavorites.isEmpty()){
+            List<Long> menuItemIds = menuItemFavorites.stream().map(Favorite::getFavoritableId).collect(Collectors.toList());
+            List<MenuItem> menuItems = menuItemRepository.findAllById(menuItemIds);
+            List<MenuItemResponse> menuItemResponses = menuItems.stream()
+                    .map(menuItemMapper::toDto)
+                    .collect(Collectors.toList());
+            favoritesMap.put("menu_items", menuItemResponses);
+        }
+
+
+        return favoritesMap;
     }
 
-    private FavoriteResponse toDto(Favorite f) {
-        return FavoriteResponse.builder()
-                .id(f.getId())
-                .userId(f.getUserId())
-                .favoritableType(f.getFavoritableType())
-                .favoritableId(f.getFavoritableId())
-                .createdAt(f.getCreatedAt())
-                .build();
+    private User getCurrentUser() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
-}
+
+    private void validateFavoritable(String type, Long id) {
+        if ("restaurant".equalsIgnoreCase(type)) {
+            if (!restaurantRepository.existsById(id)) {
+                throw new AppException(ErrorCode.RESTAURANT_NOT_FOUND);
+            }
+        } else if ("menu_item".equalsIgnoreCase(type)) {
+            if (!menuItemRepository.existsById(id)) {
+                throw new AppException(ErrorCode.MENU_ITEM_NOT_FOUND);
+            }
+        } else {
+            throw new AppException(ErrorCode.INVALID_FAVORITE_TYPE);
+        }
+    }
+} 

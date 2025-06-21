@@ -8,8 +8,7 @@
 -- 1. CITIES
 -- ================================
 INSERT INTO cities (id, name) VALUES
-(1, 'Ho Chi Minh City'),
-(2, 'Hanoi'),
+(2, 'Ho Chi Minh City'),
 (3, 'Da Nang'),
 (4, 'Can Tho'),
 (5, 'Hue');
@@ -28,15 +27,13 @@ INSERT INTO city_deliverability (city_id, is_deliverable) VALUES
 -- 3. ROLES
 -- ================================
 INSERT INTO roles (id, name, description) VALUES
-(1, 'USER', 'Regular customer role'),
-(2, 'ADMIN', 'Administrator role'),
 (3, 'RESTAURANT_OWNER', 'Restaurant owner role');
 
 -- ================================
 -- 4. USERS
 -- ================================
 INSERT INTO users (id, email, password, login, activated, lang_key, created_by, created_at) VALUES
-(1, 'john.doe@gmail.com', '$2a$10$9XZm7LHcKnr9p9xG8w8Y6OuK3H8JKNrYzQw8C2xZy7vN8dF5bH2Gi', 'johndoe', true, 'vi', 'system', NOW()),
+(7, 'john.doe@gmail.com', '$2a$10$9XZm7LHcKnr9p9xG8w8Y6OuK3H8JKNrYzQw8C2xZy7vN8dF5bH2Gi', 'johndoe', true, 'vi', 'system', NOW()),
 (2, 'jane.smith@gmail.com', '$2a$10$9XZm7LHcKnr9p9xG8w8Y6OuK3H8JKNrYzQw8C2xZy7vN8dF5bH2Gi', 'janesmith', true, 'vi', 'system', NOW()),
 (3, 'restaurant1@foodease.com', '$2a$10$9XZm7LHcKnr9p9xG8w8Y6OuK3H8JKNrYzQw8C2xZy7vN8dF5bH2Gi', 'restaurant1', true, 'vi', 'system', NOW()),
 (4, 'restaurant2@foodease.com', '$2a$10$9XZm7LHcKnr9p9xG8w8Y6OuK3H8JKNrYzQw8C2xZy7vN8dF5bH2Gi', 'restaurant2', true, 'vi', 'system', NOW()),

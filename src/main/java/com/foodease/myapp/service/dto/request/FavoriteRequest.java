@@ -16,9 +16,6 @@ import static lombok.AccessLevel.PRIVATE;
 @FieldDefaults(level = PRIVATE)
 public class FavoriteRequest {
     @NotNull
-    private Long userId;
-
-    @NotNull
     private String favoritableType;
 
     @NotNull

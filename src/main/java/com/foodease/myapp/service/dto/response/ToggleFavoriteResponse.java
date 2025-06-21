@@ -7,6 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class ToggleFavoriteResponse {
-    private Long menuItemId;
+    private Long favoritableId;
+    private String favoritableType;
     private Boolean isFavorite;
 } 

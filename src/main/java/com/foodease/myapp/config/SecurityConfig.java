@@ -29,19 +29,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private static final String[] PUBLIC_WHITELIST = {
-            "/v3/api-docs",
             "/v3/api-docs/**",
-            "/swagger-ui.html",
             "/swagger-ui/**",
-            "/webjars/**",
-
             "/auth/**",
-            "/restaurants/**",
-            "/categories/**",
-            "/menu-items/**",
-            "/favorites/**",
-            "/slider-images/**",
-            "/cities/**",
     };
 
     private final CustomJwtDecoder customJwtDecoder;
@@ -49,11 +39,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .cors(Customizer.withDefaults())
-                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(PUBLIC_WHITELIST).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/restaurants/**", "/menu-items/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
@@ -70,26 +60,15 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
         cfg.setAllowedOriginPatterns(List.of(
-                "http://localhost:3000",
-                "http://localhost:3001",
-                "http://localhost:4000",
-                "http://localhost:5000",
-                "http://localhost:5173",
-                "http://localhost:5174"
-
+                "http://localhost:5173"
         ));
-        cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         cfg.setAllowedHeaders(List.of("*"));
         cfg.setAllowCredentials(Boolean.TRUE);
 
         UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();
         src.registerCorsConfiguration("/**", cfg);
         return src;
-    }
-
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.ignoring().requestMatchers(PUBLIC_WHITELIST);
     }
 
     @Bean
