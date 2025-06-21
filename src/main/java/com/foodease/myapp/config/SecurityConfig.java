@@ -43,7 +43,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_WHITELIST).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/restaurants/**", "/menu-items/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/restaurants/**", "/menu-items/**", "/categories/**", "/cities/**")
+                        .permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
