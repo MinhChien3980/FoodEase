@@ -35,5 +35,3 @@ build/
 *.log
 *.class
 .env
-
-/docker-compose.yaml

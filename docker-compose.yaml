@@ -11,7 +11,7 @@ services:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=jdbc:mysql://fe-mysql:3306/foodease?useUnicode=true&characterEncoding=utf8&useSSL=false
       - SPRING_DATASOURCE_USERNAME=user
-      - SPRING_DATASOURCE_PASSWORD=123123
+      - SPRING_DATASOURCE_PASSWORD=123123123
       - STRIPE_SECRET_KEY=sk_test_51Qg00nFl6JPDGnPVh6TosZpbfyyfoh0hQwuykM6xWJkHIgoJKk4YJDKzvWwubCVzLsv5UQm2ihe8FjyM3J0h0q6X00zIoJsUAl
     ports:
       - "8080:8080"
@@ -32,7 +32,7 @@ services:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=foodease
       - MYSQL_USER=user
-      - MYSQL_PASSWORD=123123
+      - MYSQL_PASSWORD=123123123
     ports:
       - "3306:3306"
     volumes:
