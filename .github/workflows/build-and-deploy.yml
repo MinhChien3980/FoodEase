@@ -30,10 +30,12 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /path/to/your/project/FoodEase
-            echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" > .env
-            echo "MYSQL_DATABASE=foodease" >> .env
-            echo "MYSQL_USER=myuser" >> .env
-            echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
-            echo "STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}" >> .env
             git pull origin main
+            
+            export MYSQL_ROOT_PASSWORD='${{ secrets.MYSQL_ROOT_PASSWORD }}'
+            export MYSQL_DATABASE='foodease'
+            export MYSQL_USER='myuser'
+            export MYSQL_PASSWORD='${{ secrets.MYSQL_PASSWORD }}'
+            export STRIPE_SECRET_KEY='${{ secrets.STRIPE_SECRET_KEY }}'
+            
             docker-compose up -d --build 
